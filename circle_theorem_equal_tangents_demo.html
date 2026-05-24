@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Circle Theorem Demo: Equal Tangents</title>
+<style>
+  :root {
+    --blue: #0b3d91;
+    --green: #157a22;
+    --purple: #7b1fe8;
+    --red: #d71920;
+    --ink: #202020;
+    --soft: #f7f3e8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    border: 1px solid #999;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .title {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    text-align: center;
+    font-size: 27px;
+    font-weight: 700;
+    padding: 14px 12px;
+  }
+
+  .subtitle {
+    background: var(--soft);
+    text-align: center;
+    font-size: 20px;
+    padding: 12px;
+    border-bottom: 1px solid #bbb;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: minmax(560px, 1fr) 360px;
+    gap: 24px;
+    padding: 24px;
+    align-items: start;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #222;
+    stroke-width: 2.5;
+  }
+
+  .tangentLine {
+    stroke: #111;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+  }
+
+  .tick {
+    stroke: #111;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+  }
+
+  .point {
+    stroke: #111;
+    stroke-width: 1.5;
+  }
+
+  .draggable {
+    cursor: grab;
+  }
+
+  .draggable:active {
+    cursor: grabbing;
+  }
+
+  .label {
+    font-size: 26px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .panel {
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    background: linear-gradient(#f7fbff, #eef6ff);
+    padding: 18px;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .panel.measure {
+    border-color: var(--green);
+    background: linear-gradient(#fbfffb, #effbef);
+  }
+
+  .panel h2 {
+    margin: 0 0 14px;
+    color: var(--blue);
+    font-size: 25px;
+  }
+
+  .panel.measure h2 {
+    color: var(--green);
+  }
+
+  .panel p {
+    margin: 10px 0;
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
+  .measurements {
+    font-size: 26px;
+    line-height: 1.8;
+  }
+
+  .overline {
+    text-decoration: overline;
+    text-decoration-thickness: 2px;
+  }
+
+  .tickSymbol {
+    display: inline-block;
+    width: 42px;
+    height: 0;
+    border-top: 3px solid #111;
+    position: relative;
+    top: -6px;
+    margin-right: 12px;
+  }
+
+  .tickSymbol::after {
+    content: "";
+    position: absolute;
+    left: 19px;
+    top: -11px;
+    width: 0;
+    height: 20px;
+    border-left: 3px solid #111;
+  }
+
+  @media (max-width: 850px) {
+    .content {
+      grid-template-columns: 1fr;
+    }
+
+    .title {
+      font-size: 22px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="title">Tangents from a Common Point to a Circle are Always Equal in Length</div>
+  <div class="subtitle">Drag point A to explore.</div>
+
+  <div class="content">
+    <svg id="svg" viewBox="0 0 700 650" aria-label="Interactive equal tangents theorem diagram">
+      <circle class="circle" cx="270" cy="325" r="160"></circle>
+      <circle id="centerDot" class="point" r="5" fill="#111"></circle>
+
+      <!-- Extended tangent lines -->
+      <line id="lineAB" class="tangentLine"></line>
+      <line id="lineAC" class="tangentLine"></line>
+
+      <!-- Equal length tick marks -->
+      <line id="tickAB" class="tick"></line>
+      <line id="tickAC" class="tick"></line>
+
+      <!-- Points -->
+      <circle id="pointA" class="point draggable" r="9" fill="#1f4fff"></circle>
+      <circle id="pointB" class="point" r="8" fill="#157a22"></circle>
+      <circle id="pointC" class="point" r="8" fill="#157a22"></circle>
+
+      <!-- Labels -->
+      <text id="labelA" class="label" fill="#1f4fff">A</text>
+      <text id="labelB" class="label" fill="#157a22">B</text>
+      <text id="labelC" class="label" fill="#157a22">C</text>
+    </svg>
+
+    <div>
+      <div class="panel">
+        <h2>Theorem</h2>
+        <p>Tangents from a common point to a circle are always <strong style="color:#7b1fe8;">equal in length</strong>.</p>
+      </div>
+
+      <div class="panel measure">
+        <h2>Measurement</h2>
+        <div class="measurements">
+          <span class="tickSymbol"></span>
+          <span class="overline">AB</span> =
+          <span class="overline">AC</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const svg = document.getElementById("svg");
+
+  const cx = 270;
+  const cy = 325;
+  const r = 160;
+  const minDistance = r + 55;
+
+  const pointA = document.getElementById("pointA");
+  const pointB = document.getElementById("pointB");
+  const pointC = document.getElementById("pointC");
+
+  const lineAB = document.getElementById("lineAB");
+  const lineAC = document.getElementById("lineAC");
+
+  const tickAB = document.getElementById("tickAB");
+  const tickAC = document.getElementById("tickAC");
+
+  const labelA = document.getElementById("labelA");
+  const labelB = document.getElementById("labelB");
+  const labelC = document.getElementById("labelC");
+
+  let A = { x: 545, y: 325 };
+  let dragging = false;
+
+  function add(p, v, s) {
+    return { x: p.x + v.x * s, y: p.y + v.y * s };
+  }
+
+  function sub(p, q) {
+    return { x: p.x - q.x, y: p.y - q.y };
+  }
+
+  function dot(u, v) {
+    return u.x * v.x + u.y * v.y;
+  }
+
+  function len(v) {
+    return Math.hypot(v.x, v.y);
+  }
+
+  function unit(v) {
+    const L = len(v);
+    return { x: v.x / L, y: v.y / L };
+  }
+
+  function midpoint(p, q) {
+    return { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 };
+  }
+
+  function setLine(line, p1, p2) {
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
+  }
+
+  function tangentPointsFromExternalPoint(P) {
+    const O = { x: cx, y: cy };
+
+    const centerDot = document.getElementById("centerDot");
+    centerDot.setAttribute("cx", O.x);
+    centerDot.setAttribute("cy", O.y);
+    const OP = sub(P, O);
+    const d = len(OP);
+    const u = unit(OP);
+    const v = { x: -u.y, y: u.x };
+
+    const along = (r * r) / d;
+    const height = Math.sqrt(r * r - along * along);
+
+    const base = add(O, u, along);
+
+    return {
+      B: add(base, v, height),
+      C: add(base, v, -height)
+    };
+  }
+
+  function setTick(line, pointOnSegment, along, tickLength) {
+    const perp = { x: -along.y, y: along.x };
+    const p1 = add(pointOnSegment, perp, -tickLength / 2);
+    const p2 = add(pointOnSegment, perp, tickLength / 2);
+    setLine(line, p1, p2);
+  }
+
+  function extendedLineThrough(A, T, extraBeyondT, extraBeyondA) {
+    const dir = unit(sub(A, T)); // from T to A
+    return {
+      p1: add(T, dir, -extraBeyondT),
+      p2: add(A, dir, extraBeyondA)
+    };
+  }
+
+  function svgPointFromEvent(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function constrainOutsideCircle(P) {
+    const O = { x: cx, y: cy };
+    const OP = sub(P, O);
+    const d = len(OP);
+
+    if (d >= minDistance) {
+      return P;
+    }
+
+    const u = d < 0.001 ? { x: 1, y: 0 } : unit(OP);
+    return add(O, u, minDistance);
+  }
+
+  function updateDraggedPoint(evt) {
+    if (!dragging) return;
+    A = constrainOutsideCircle(svgPointFromEvent(evt));
+    draw();
+  }
+
+  function draw() {
+    const O = { x: cx, y: cy };
+    const { B, C } = tangentPointsFromExternalPoint(A);
+
+    const extAB = extendedLineThrough(A, B, 175, 0);
+    const extAC = extendedLineThrough(A, C, 175, 0);
+
+    setLine(lineAB, extAB.p1, extAB.p2);
+    setLine(lineAC, extAC.p1, extAC.p2);
+
+    pointA.setAttribute("cx", A.x);
+    pointA.setAttribute("cy", A.y);
+    pointB.setAttribute("cx", B.x);
+    pointB.setAttribute("cy", B.y);
+    pointC.setAttribute("cx", C.x);
+    pointC.setAttribute("cy", C.y);
+
+    const dirAB = unit(sub(A, B));
+    const dirAC = unit(sub(A, C));
+
+    setTick(tickAB, midpoint(A, B), dirAB, 28);
+    setTick(tickAC, midpoint(A, C), dirAC, 28);
+
+    const OAunit = unit(sub(A, O));
+    labelA.setAttribute("x", A.x + 32 * OAunit.x);
+    labelA.setAttribute("y", A.y + 32 * OAunit.y);
+
+    const OBunit = unit(sub(B, O));
+    const OCunit = unit(sub(C, O));
+    labelB.setAttribute("x", B.x + 30 * OBunit.x);
+    labelB.setAttribute("y", B.y + 30 * OBunit.y);
+    labelC.setAttribute("x", C.x + 30 * OCunit.x);
+    labelC.setAttribute("y", C.y + 30 * OCunit.y);
+  }
+
+  pointA.addEventListener("pointerdown", (evt) => {
+    dragging = true;
+    pointA.setPointerCapture(evt.pointerId);
+  });
+
+  pointA.addEventListener("pointermove", updateDraggedPoint);
+
+  pointA.addEventListener("pointerup", () => {
+    dragging = false;
+  });
+
+  pointA.addEventListener("pointercancel", () => {
+    dragging = false;
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>

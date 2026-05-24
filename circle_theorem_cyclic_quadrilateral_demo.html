@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Circle Theorem Demo: Cyclic Quadrilateral</title>
+<style>
+  :root {
+    --blue: #0b3d91;
+    --green: #157a22;
+    --purple: #7b1fe8;
+    --red: #d71920;
+    --ink: #202020;
+    --soft: #f7f3e8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    border: 1px solid #999;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .title {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    padding: 14px 12px;
+  }
+
+  .subtitle {
+    background: var(--soft);
+    text-align: center;
+    font-size: 20px;
+    padding: 12px;
+    border-bottom: 1px solid #bbb;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: minmax(500px, 1fr) 370px;
+    gap: 24px;
+    padding: 24px;
+    align-items: start;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #222;
+    stroke-width: 2.4;
+  }
+
+  .side {
+    stroke: #222;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  .angleA {
+    fill: rgba(31, 79, 255, 0.28);
+    stroke: #1f4fff;
+    stroke-width: 2.2;
+  }
+
+  .angleB {
+    fill: rgba(229, 27, 35, 0.25);
+    stroke: #e51b23;
+    stroke-width: 2.2;
+  }
+
+  .angleC {
+    fill: rgba(21, 122, 34, 0.28);
+    stroke: #157a22;
+    stroke-width: 2.2;
+  }
+
+  .angleD {
+    fill: rgba(123, 31, 232, 0.26);
+    stroke: #7b1fe8;
+    stroke-width: 2.2;
+  }
+
+  .point {
+    stroke: #111;
+    stroke-width: 1.5;
+    cursor: grab;
+  }
+
+  .point:active {
+    cursor: grabbing;
+  }
+
+  .label {
+    font-size: 25px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .angleText {
+    font-size: 22px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .panel {
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    background: linear-gradient(#f7fbff, #eef6ff);
+    padding: 18px;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
+  .panel.measure {
+    border-color: var(--green);
+    background: linear-gradient(#fbfffb, #effbef);
+  }
+
+  .panel.sums {
+    border-color: var(--purple);
+    background: linear-gradient(#fffaff, #fbf4ff);
+  }
+
+  .panel h2 {
+    margin: 0 0 14px;
+    color: var(--blue);
+    font-size: 25px;
+  }
+
+  .panel.measure h2 {
+    color: var(--green);
+  }
+
+  .panel.sums h2 {
+    color: var(--purple);
+  }
+
+  .panel p {
+    margin: 10px 0;
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
+  .angleRows {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 9px 10px;
+    align-items: center;
+    font-size: 20px;
+    text-align: left;
+  }
+
+  .value {
+    display: inline-block;
+    min-width: 72px;
+    text-align: center;
+    padding: 3px 9px;
+    border-radius: 7px;
+    font-weight: 700;
+    background: #fff;
+  }
+
+  .blue { color: #1f4fff; }
+  .red { color: #e51b23; }
+  .green { color: #157a22; }
+  .purple { color: #7b1fe8; }
+
+  .blueBox { border: 1.5px solid #8ba6ff; background: #f4f7ff; }
+  .redBox { border: 1.5px solid #ff9ca1; background: #fff6f6; }
+  .greenBox { border: 1.5px solid #8fd19b; background: #f5fff7; }
+  .purpleBox { border: 1.5px solid #c79cff; background: #fbf6ff; }
+
+  .sumLine {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 12px 0;
+  }
+
+  @media (max-width: 850px) {
+    .content {
+      grid-template-columns: 1fr;
+    }
+
+    .title {
+      font-size: 23px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="title">Cyclic Quadrilateral — Opposite Angles Add Up to 180°</div>
+  <div class="subtitle">Drag any vertex to explore.</div>
+
+  <div class="content">
+    <svg id="svg" viewBox="0 0 650 650" aria-label="Interactive cyclic quadrilateral theorem diagram">
+      <circle class="circle" cx="325" cy="325" r="255"></circle>
+      <circle id="centerDot" class="point" r="5" fill="#111" cx="325" cy="325"></circle>
+
+      <!-- Quadrilateral sides -->
+      <line id="AB" class="side"></line>
+      <line id="BC" class="side"></line>
+      <line id="CD" class="side"></line>
+      <line id="DA" class="side"></line>
+
+      <!-- Angle sectors -->
+      <path id="arcA" class="angleA"></path>
+      <path id="arcB" class="angleB"></path>
+      <path id="arcC" class="angleC"></path>
+      <path id="arcD" class="angleD"></path>
+
+      <!-- Points -->
+      <circle id="pointA" class="point" r="8" fill="#1f4fff"></circle>
+      <circle id="pointB" class="point" r="8" fill="#e51b23"></circle>
+      <circle id="pointC" class="point" r="8" fill="#157a22"></circle>
+      <circle id="pointD" class="point" r="8" fill="#7b1fe8"></circle>
+
+      <!-- Point labels -->
+      <text id="labelA" class="label" fill="#1f4fff">A</text>
+      <text id="labelB" class="label" fill="#e51b23">B</text>
+      <text id="labelC" class="label" fill="#157a22">C</text>
+      <text id="labelD" class="label" fill="#7b1fe8">D</text>
+
+      <!-- Number-only angle labels -->
+      <text id="textA" class="angleText" fill="#1f4fff"></text>
+      <text id="textB" class="angleText" fill="#e51b23"></text>
+      <text id="textC" class="angleText" fill="#157a22"></text>
+      <text id="textD" class="angleText" fill="#7b1fe8"></text>
+    </svg>
+
+    <div>
+      <div class="panel">
+        <h2>Theorem</h2>
+        <p>ABCD is a cyclic quadrilateral.</p>
+        <p>Diagonally opposite angles add up to 180°.</p>
+      </div>
+
+      <div class="panel measure">
+        <h2>Angle Measures</h2>
+        <div class="angleRows">
+          <div class="blue">∠DAB</div><div class="value blueBox blue" id="angleA">--</div>
+          <div class="red">∠ABC</div><div class="value redBox red" id="angleB">--</div>
+          <div class="green">∠BCD</div><div class="value greenBox green" id="angleC">--</div>
+          <div class="purple">∠CDA</div><div class="value purpleBox purple" id="angleD">--</div>
+        </div>
+      </div>
+
+      <div class="panel sums">
+        <h2>Opposite Angles</h2>
+        <div class="sumLine">
+          <span class="blue" id="sumA">--</span> + <span class="green" id="sumC">--</span> = 180.0°
+        </div>
+        <div class="sumLine">
+          <span class="red" id="sumB">--</span> + <span class="purple" id="sumD">--</span> = 180.0°
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const svg = document.getElementById("svg");
+
+  const cx = 325;
+  const cy = 325;
+  const r = 255;
+  const minGap = 8; // degrees; prevents vertices from crossing or collapsing
+
+  // Angles are stored in SVG/screen orientation degrees:
+  // 0 = right, 90 = down, 180 = left, 270 = up.
+  // A, B, C, D are kept in clockwise order.
+  const points = {
+    A: { angle: 210 },
+    B: { angle: 310 },
+    C: { angle: 35 },
+    D: { angle: 155 }
+  };
+
+  const pointEls = {
+    A: document.getElementById("pointA"),
+    B: document.getElementById("pointB"),
+    C: document.getElementById("pointC"),
+    D: document.getElementById("pointD")
+  };
+
+  const labelEls = {
+    A: document.getElementById("labelA"),
+    B: document.getElementById("labelB"),
+    C: document.getElementById("labelC"),
+    D: document.getElementById("labelD")
+  };
+
+  const lines = {
+    AB: document.getElementById("AB"),
+    BC: document.getElementById("BC"),
+    CD: document.getElementById("CD"),
+    DA: document.getElementById("DA")
+  };
+
+  const arcs = {
+    A: document.getElementById("arcA"),
+    B: document.getElementById("arcB"),
+    C: document.getElementById("arcC"),
+    D: document.getElementById("arcD")
+  };
+
+  const angleTexts = {
+    A: document.getElementById("textA"),
+    B: document.getElementById("textB"),
+    C: document.getElementById("textC"),
+    D: document.getElementById("textD")
+  };
+
+  const readouts = {
+    A: document.getElementById("angleA"),
+    B: document.getElementById("angleB"),
+    C: document.getElementById("angleC"),
+    D: document.getElementById("angleD")
+  };
+
+  const sums = {
+    A: document.getElementById("sumA"),
+    B: document.getElementById("sumB"),
+    C: document.getElementById("sumC"),
+    D: document.getElementById("sumD")
+  };
+
+  let dragging = null;
+
+  function normalizeDeg(deg) {
+    while (deg < 0) deg += 360;
+    while (deg >= 360) deg -= 360;
+    return deg;
+  }
+
+  function degToRad(deg) {
+    return deg * Math.PI / 180;
+  }
+
+  function radToDeg(rad) {
+    return rad * 180 / Math.PI;
+  }
+
+  function normalizeRad(a) {
+    while (a < 0) a += 2 * Math.PI;
+    while (a >= 2 * Math.PI) a -= 2 * Math.PI;
+    return a;
+  }
+
+  function cwDelta(fromDeg, toDeg) {
+    return normalizeDeg(toDeg - fromDeg);
+  }
+
+  function betweenClockwise(startDeg, endDeg, testDeg) {
+    const span = cwDelta(startDeg, endDeg);
+    const pos = cwDelta(startDeg, testDeg);
+    return pos > minGap && pos < span - minGap;
+  }
+
+  function clampToIntervalClockwise(startDeg, endDeg, testDeg) {
+    if (betweenClockwise(startDeg, endDeg, testDeg)) {
+      return normalizeDeg(testDeg);
+    }
+
+    const startBoundary = normalizeDeg(startDeg + minGap);
+    const endBoundary = normalizeDeg(endDeg - minGap);
+
+    const distStart = Math.min(cwDelta(testDeg, startBoundary), cwDelta(startBoundary, testDeg));
+    const distEnd = Math.min(cwDelta(testDeg, endBoundary), cwDelta(endBoundary, testDeg));
+
+    return distStart < distEnd ? startBoundary : endBoundary;
+  }
+
+  function constrainedAngle(name, proposed) {
+    if (name === "A") return clampToIntervalClockwise(points.D.angle, points.B.angle, proposed);
+    if (name === "B") return clampToIntervalClockwise(points.A.angle, points.C.angle, proposed);
+    if (name === "C") return clampToIntervalClockwise(points.B.angle, points.D.angle, proposed);
+    if (name === "D") return clampToIntervalClockwise(points.C.angle, points.A.angle, proposed);
+    return proposed;
+  }
+
+  function pointFromAngle(deg) {
+    const theta = degToRad(deg);
+    return {
+      x: cx + r * Math.cos(theta),
+      y: cy + r * Math.sin(theta)
+    };
+  }
+
+  function getPoint(name) {
+    return pointFromAngle(points[name].angle);
+  }
+
+  function setLine(line, p1, p2) {
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
+  }
+
+  function vectorAngle(v) {
+    return Math.atan2(v.y, v.x);
+  }
+
+  function angleBetweenAt(vertex, p1, p2) {
+    const v1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+    const v2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    const mag1 = Math.hypot(v1.x, v1.y);
+    const mag2 = Math.hypot(v2.x, v2.y);
+
+    const cosTheta = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+    return Math.acos(cosTheta) * 180 / Math.PI;
+  }
+
+  function sectorPath(vertex, p1, p2, radius) {
+    const a1 = normalizeRad(vectorAngle({ x: p1.x - vertex.x, y: p1.y - vertex.y }));
+    const a2 = normalizeRad(vectorAngle({ x: p2.x - vertex.x, y: p2.y - vertex.y }));
+
+    let start = a1;
+    let end = a2;
+    let delta = normalizeRad(end - start);
+
+    if (delta > Math.PI) {
+      start = a2;
+      end = a1;
+      delta = normalizeRad(end - start);
+    }
+
+    const startPt = {
+      x: vertex.x + radius * Math.cos(start),
+      y: vertex.y + radius * Math.sin(start)
+    };
+
+    const endPt = {
+      x: vertex.x + radius * Math.cos(end),
+      y: vertex.y + radius * Math.sin(end)
+    };
+
+    return [
+      `M ${vertex.x} ${vertex.y}`,
+      `L ${startPt.x} ${startPt.y}`,
+      `A ${radius} ${radius} 0 0 1 ${endPt.x} ${endPt.y}`,
+      "Z"
+    ].join(" ");
+  }
+
+  function angleLabelPosition(vertex, p1, p2, dist) {
+    const a1 = normalizeRad(vectorAngle({ x: p1.x - vertex.x, y: p1.y - vertex.y }));
+    const a2 = normalizeRad(vectorAngle({ x: p2.x - vertex.x, y: p2.y - vertex.y }));
+
+    let start = a1;
+    let end = a2;
+    let delta = normalizeRad(end - start);
+
+    if (delta > Math.PI) {
+      start = a2;
+      end = a1;
+      delta = normalizeRad(end - start);
+    }
+
+    const mid = start + delta / 2;
+    return {
+      x: vertex.x + dist * Math.cos(mid),
+      y: vertex.y + dist * Math.sin(mid)
+    };
+  }
+
+  function svgPointFromEvent(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function updateDraggedPoint(evt) {
+    if (!dragging) return;
+
+    const pt = svgPointFromEvent(evt);
+    const dx = pt.x - cx;
+    const dy = pt.y - cy;
+
+    let angle = normalizeDeg(radToDeg(Math.atan2(dy, dx)));
+    angle = constrainedAngle(dragging, angle);
+
+    points[dragging].angle = angle;
+    draw();
+  }
+
+  function draw() {
+    const A = getPoint("A");
+    const B = getPoint("B");
+    const C = getPoint("C");
+    const D = getPoint("D");
+
+    setLine(lines.AB, A, B);
+    setLine(lines.BC, B, C);
+    setLine(lines.CD, C, D);
+    setLine(lines.DA, D, A);
+
+    for (const name of ["A", "B", "C", "D"]) {
+      const p = getPoint(name);
+      pointEls[name].setAttribute("cx", p.x);
+      pointEls[name].setAttribute("cy", p.y);
+
+      const labelOffset = 30;
+      const theta = degToRad(points[name].angle);
+      labelEls[name].setAttribute("x", p.x + labelOffset * Math.cos(theta));
+      labelEls[name].setAttribute("y", p.y + labelOffset * Math.sin(theta));
+    }
+
+    const angleA = angleBetweenAt(A, D, B); // DAB
+    const angleB = angleBetweenAt(B, A, C); // ABC
+    const angleC = angleBetweenAt(C, B, D); // BCD
+    const angleD = angleBetweenAt(D, C, A); // CDA
+
+    const angleVals = { A: angleA, B: angleB, C: angleC, D: angleD };
+
+    arcs.A.setAttribute("d", sectorPath(A, D, B, 62));
+    arcs.B.setAttribute("d", sectorPath(B, A, C, 62));
+    arcs.C.setAttribute("d", sectorPath(C, B, D, 62));
+    arcs.D.setAttribute("d", sectorPath(D, C, A, 62));
+
+    const labelPositions = {
+      A: angleLabelPosition(A, D, B, 98),
+      B: angleLabelPosition(B, A, C, 98),
+      C: angleLabelPosition(C, B, D, 98),
+      D: angleLabelPosition(D, C, A, 98)
+    };
+
+    for (const name of ["A", "B", "C", "D"]) {
+      angleTexts[name].setAttribute("x", labelPositions[name].x);
+      angleTexts[name].setAttribute("y", labelPositions[name].y);
+      angleTexts[name].textContent = `${angleVals[name].toFixed(1)}°`;
+      readouts[name].textContent = `${angleVals[name].toFixed(1)}°`;
+      sums[name].textContent = `${angleVals[name].toFixed(1)}°`;
+    }
+  }
+
+  for (const name of ["A", "B", "C", "D"]) {
+    pointEls[name].addEventListener("pointerdown", (evt) => {
+      dragging = name;
+      pointEls[name].setPointerCapture(evt.pointerId);
+    });
+
+    pointEls[name].addEventListener("pointermove", updateDraggedPoint);
+
+    pointEls[name].addEventListener("pointerup", () => {
+      dragging = null;
+    });
+
+    pointEls[name].addEventListener("pointercancel", () => {
+      dragging = null;
+    });
+  }
+
+  draw();
+})();
+</script>
+</body>
+</html>

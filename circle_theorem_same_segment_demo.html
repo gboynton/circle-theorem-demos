@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Circle Theorem Demo: Angles in the Same Segment</title>
+<style>
+  :root {
+    --blue: #0b3d91;
+    --light-blue: #eef6ff;
+    --green: #157a22;
+    --purple: #7b1fe8;
+    --red: #d71920;
+    --ink: #202020;
+    --soft: #f7f3e8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    border: 1px solid #999;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .title {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    padding: 14px 12px;
+  }
+
+  .subtitle {
+    background: var(--soft);
+    text-align: center;
+    font-size: 20px;
+    padding: 12px;
+    border-bottom: 1px solid #bbb;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: minmax(500px, 1fr) 360px;
+    gap: 24px;
+    padding: 24px;
+    align-items: start;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #222;
+    stroke-width: 2.3;
+  }
+
+  .chord {
+    stroke: #222;
+    stroke-width: 2.3;
+    stroke-linecap: round;
+  }
+
+  .angle-arc-green {
+    fill: rgba(40, 160, 50, 0.28);
+    stroke: var(--green);
+    stroke-width: 2.2;
+  }
+
+  .angle-arc-purple {
+    fill: rgba(130, 40, 220, 0.28);
+    stroke: var(--purple);
+    stroke-width: 2.2;
+  }
+
+  .point {
+    stroke: #111;
+    stroke-width: 1.5;
+    cursor: grab;
+  }
+
+  .point:active {
+    cursor: grabbing;
+  }
+
+  .label {
+    font-size: 24px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .angleText {
+    font-size: 24px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .panel {
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    background: linear-gradient(#f7fbff, #eef6ff);
+    padding: 18px;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .panel.measure {
+    border-color: var(--green);
+    background: linear-gradient(#fbfffb, #effbef);
+  }
+
+  .panel h2 {
+    margin: 0 0 14px;
+    color: var(--blue);
+    font-size: 24px;
+  }
+
+  .panel.measure h2 {
+    color: var(--green);
+  }
+
+  .panel p {
+    margin: 10px 0;
+    font-size: 18px;
+    line-height: 1.35;
+  }
+
+  .measurements {
+    font-size: 24px;
+    line-height: 1.65;
+  }
+
+  .green {
+    color: var(--green);
+  }
+
+  .purple {
+    color: var(--purple);
+  }
+
+  .equalBox {
+    margin-top: 18px;
+    padding: 14px;
+    border: 1.5px solid #5ca55c;
+    border-radius: 9px;
+    background: #f7fff7;
+    font-size: 25px;
+    font-weight: 700;
+  }
+
+  .small {
+    font-size: 15px;
+    font-weight: 400;
+    margin-top: 8px;
+  }
+
+  @media (max-width: 850px) {
+    .content {
+      grid-template-columns: 1fr;
+    }
+
+    .title {
+      font-size: 22px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="title">Angles in the Same Segment and Standing on the Same Chord are Equal</div>
+  <div class="subtitle">Drag the points around the circle.</div>
+
+  <div class="content">
+    <svg id="svg" viewBox="0 0 650 650" aria-label="Interactive circle theorem diagram">
+      <circle id="circle" class="circle" cx="325" cy="325" r="255"></circle>
+      <circle id="centerDot" class="point" r="5" fill="#111" cx="325" cy="325"></circle>
+
+      <!-- Chords -->
+      <line id="AB" class="chord"></line>
+      <line id="AC" class="chord"></line>
+      <line id="BC" class="chord"></line>
+      <line id="AD" class="chord"></line>
+      <line id="BD" class="chord"></line>
+
+      <!-- Angle sectors -->
+      <path id="arcC" class="angle-arc-green"></path>
+      <path id="arcD" class="angle-arc-purple"></path>
+
+      <!-- Points -->
+      <circle id="pointA" class="point" r="8" fill="#1f4fff"></circle>
+      <circle id="pointB" class="point" r="8" fill="#e51b23"></circle>
+      <circle id="pointC" class="point" r="8" fill="#19a629"></circle>
+      <circle id="pointD" class="point" r="8" fill="#7b1fe8"></circle>
+
+      <!-- Labels -->
+      <text id="labelA" class="label" fill="#1f4fff">A</text>
+      <text id="labelB" class="label" fill="#e51b23">B</text>
+      <text id="labelC" class="label" fill="#157a22">C</text>
+      <text id="labelD" class="label" fill="#7b1fe8">D</text>
+
+      <!-- Angle labels -->
+      <text id="textC" class="angleText green"></text>
+      <text id="textD" class="angleText purple"></text>
+    </svg>
+
+    <div>
+      <div class="panel">
+        <h2>Theorem</h2>
+        <p>Angles in the same segment and standing on the same chord are equal.</p>
+        <p>Here, both angles stand on chord <strong>AB</strong>.</p>
+      </div>
+
+      <div class="panel measure">
+        <h2>Measurements</h2>
+        <div class="measurements">
+          <div class="green">∠ACB = <span id="angleC">--</span>°</div>
+          <div class="purple">∠ADB = <span id="angleD">--</span>°</div>
+        </div>
+
+        <div class="equalBox">
+          <span class="green">∠ACB</span> = <span class="purple">∠ADB</span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const svg = document.getElementById("svg");
+
+  const cx = 325;
+  const cy = 325;
+  const r = 255;
+
+  const points = {
+    A: { angle: 225, color: "#1f4fff" },
+    B: { angle: 20,  color: "#e51b23" },
+    C: { angle: 140, color: "#19a629" },
+    D: { angle: 55,  color: "#7b1fe8" }
+  };
+
+  const pointEls = {
+    A: document.getElementById("pointA"),
+    B: document.getElementById("pointB"),
+    C: document.getElementById("pointC"),
+    D: document.getElementById("pointD")
+  };
+
+  const labelEls = {
+    A: document.getElementById("labelA"),
+    B: document.getElementById("labelB"),
+    C: document.getElementById("labelC"),
+    D: document.getElementById("labelD")
+  };
+
+  const chords = {
+    AB: document.getElementById("AB"),
+    AC: document.getElementById("AC"),
+    BC: document.getElementById("BC"),
+    AD: document.getElementById("AD"),
+    BD: document.getElementById("BD")
+  };
+
+  const arcC = document.getElementById("arcC");
+  const arcD = document.getElementById("arcD");
+  const textC = document.getElementById("textC");
+  const textD = document.getElementById("textD");
+
+  const angleCReadout = document.getElementById("angleC");
+  const angleDReadout = document.getElementById("angleD");
+  const differenceText = document.getElementById("differenceText");
+
+  let dragging = null;
+
+  function degToRad(deg) {
+    return deg * Math.PI / 180;
+  }
+
+  function pointFromAngle(deg) {
+    const theta = degToRad(deg);
+    return {
+      x: cx + r * Math.cos(theta),
+      y: cy - r * Math.sin(theta)
+    };
+  }
+
+  function getPoint(name) {
+    return pointFromAngle(points[name].angle);
+  }
+
+  function setLine(line, p1, p2) {
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
+  }
+
+  function vectorAngle(v) {
+    return Math.atan2(v.y, v.x);
+  }
+
+  function normalizeAngle(a) {
+    while (a < 0) a += 2 * Math.PI;
+    while (a >= 2 * Math.PI) a -= 2 * Math.PI;
+    return a;
+  }
+
+  function normalizeDeg(deg) {
+    while (deg < 0) deg += 360;
+    while (deg >= 360) deg -= 360;
+    return deg;
+  }
+
+  function clockwiseDeltaDeg(fromDeg, toDeg) {
+    return normalizeDeg(toDeg - fromDeg);
+  }
+
+  function isBetweenClockwiseDeg(startDeg, endDeg, testDeg) {
+    const span = clockwiseDeltaDeg(startDeg, endDeg);
+    const pos = clockwiseDeltaDeg(startDeg, testDeg);
+    return pos > 0.5 && pos < span - 0.5;
+  }
+
+  function clampToArcAwayFromAB(testDeg, aDeg, bDeg) {
+    // C and D must lie on the same side of chord AB.
+    // We keep them on the clockwise arc from B to A, excluding the endpoints.
+    const margin = 4;
+    const start = normalizeDeg(bDeg + margin);
+    const end = normalizeDeg(aDeg - margin);
+
+    if (isBetweenClockwiseDeg(start, end, testDeg)) {
+      return testDeg;
+    }
+
+    // If the proposed point crossed A or B, snap it to the nearest allowed endpoint.
+    const distToStart = Math.min(
+      clockwiseDeltaDeg(testDeg, start),
+      clockwiseDeltaDeg(start, testDeg)
+    );
+
+    const distToEnd = Math.min(
+      clockwiseDeltaDeg(testDeg, end),
+      clockwiseDeltaDeg(end, testDeg)
+    );
+
+    return distToStart < distToEnd ? start : end;
+  }
+
+  function keepCandDOnSameSideOfAB() {
+    points.C.angle = clampToArcAwayFromAB(points.C.angle, points.A.angle, points.B.angle);
+    points.D.angle = clampToArcAwayFromAB(points.D.angle, points.A.angle, points.B.angle);
+  }
+
+  function angleBetweenAt(vertex, p1, p2) {
+    const v1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+    const v2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    const mag1 = Math.hypot(v1.x, v1.y);
+    const mag2 = Math.hypot(v2.x, v2.y);
+
+    const cosTheta = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+    return Math.acos(cosTheta) * 180 / Math.PI;
+  }
+
+  function angleSectorPath(vertex, p1, p2, radius) {
+    const a1 = vectorAngle({ x: p1.x - vertex.x, y: p1.y - vertex.y });
+    const a2 = vectorAngle({ x: p2.x - vertex.x, y: p2.y - vertex.y });
+
+    let start = normalizeAngle(a1);
+    let end = normalizeAngle(a2);
+    let delta = end - start;
+
+    if (delta < 0) delta += 2 * Math.PI;
+    if (delta > Math.PI) {
+      const temp = start;
+      start = end;
+      end = temp;
+      delta = 2 * Math.PI - delta;
+    }
+
+    const startPt = {
+      x: vertex.x + radius * Math.cos(start),
+      y: vertex.y + radius * Math.sin(start)
+    };
+
+    const endPt = {
+      x: vertex.x + radius * Math.cos(end),
+      y: vertex.y + radius * Math.sin(end)
+    };
+
+    const largeArc = delta > Math.PI ? 1 : 0;
+
+    return [
+      `M ${vertex.x} ${vertex.y}`,
+      `L ${startPt.x} ${startPt.y}`,
+      `A ${radius} ${radius} 0 ${largeArc} 1 ${endPt.x} ${endPt.y}`,
+      "Z"
+    ].join(" ");
+  }
+
+  function angleLabelPosition(vertex, p1, p2, dist) {
+    const a1 = vectorAngle({ x: p1.x - vertex.x, y: p1.y - vertex.y });
+    const a2 = vectorAngle({ x: p2.x - vertex.x, y: p2.y - vertex.y });
+
+    let start = normalizeAngle(a1);
+    let end = normalizeAngle(a2);
+    let delta = end - start;
+
+    if (delta < 0) delta += 2 * Math.PI;
+    if (delta > Math.PI) {
+      const temp = start;
+      start = end;
+      end = temp;
+      delta = 2 * Math.PI - delta;
+    }
+
+    const mid = start + delta / 2;
+    return {
+      x: vertex.x + dist * Math.cos(mid),
+      y: vertex.y + dist * Math.sin(mid)
+    };
+  }
+
+  function svgPointFromEvent(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function updateDraggedPoint(evt) {
+    if (!dragging) return;
+
+    const pt = svgPointFromEvent(evt);
+    const dx = pt.x - cx;
+    const dy = cy - pt.y;  // SVG y-axis is downward, so flip this.
+
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    if (angle < 0) angle += 360;
+
+    if (dragging === "C" || dragging === "D") {
+      angle = clampToArcAwayFromAB(angle, points.A.angle, points.B.angle);
+    }
+
+    points[dragging].angle = angle;
+
+    if (dragging === "A" || dragging === "B") {
+      keepCandDOnSameSideOfAB();
+    }
+
+    draw();
+  }
+
+  function draw() {
+    const A = getPoint("A");
+    const B = getPoint("B");
+    const C = getPoint("C");
+    const D = getPoint("D");
+
+    setLine(chords.AB, A, B);
+    setLine(chords.AC, A, C);
+    setLine(chords.BC, B, C);
+    setLine(chords.AD, A, D);
+    setLine(chords.BD, B, D);
+
+    for (const name of ["A", "B", "C", "D"]) {
+      const p = getPoint(name);
+      pointEls[name].setAttribute("cx", p.x);
+      pointEls[name].setAttribute("cy", p.y);
+
+      const labelOffset = 28;
+      const theta = degToRad(points[name].angle);
+      labelEls[name].setAttribute("x", p.x + labelOffset * Math.cos(theta));
+      labelEls[name].setAttribute("y", p.y - labelOffset * Math.sin(theta));
+    }
+
+    const angleC = angleBetweenAt(C, A, B);
+    const angleD = angleBetweenAt(D, A, B);
+
+    arcC.setAttribute("d", angleSectorPath(C, A, B, 64));
+    arcD.setAttribute("d", angleSectorPath(D, A, B, 64));
+
+    const labelC = angleLabelPosition(C, A, B, 95);
+    const labelD = angleLabelPosition(D, A, B, 95);
+
+    textC.setAttribute("x", labelC.x);
+    textC.setAttribute("y", labelC.y);
+    textC.textContent = `${angleC.toFixed(1)}°`;
+
+    textD.setAttribute("x", labelD.x);
+    textD.setAttribute("y", labelD.y);
+    textD.textContent = `${angleD.toFixed(1)}°`;
+
+    angleCReadout.textContent = angleC.toFixed(1);
+    angleDReadout.textContent = angleD.toFixed(1);
+
+    const diff = Math.abs(angleC - angleD);
+    differenceText.textContent = `Difference: ${diff.toFixed(4)}°`;
+  }
+
+  for (const name of ["A", "B", "C", "D"]) {
+    pointEls[name].addEventListener("pointerdown", (evt) => {
+      dragging = name;
+      pointEls[name].setPointerCapture(evt.pointerId);
+    });
+
+    pointEls[name].addEventListener("pointermove", updateDraggedPoint);
+
+    pointEls[name].addEventListener("pointerup", () => {
+      dragging = null;
+    });
+
+    pointEls[name].addEventListener("pointercancel", () => {
+      dragging = null;
+    });
+  }
+
+  keepCandDOnSameSideOfAB();
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Circle Theorem Demo: Angle at the Center</title>
+<style>
+  :root {
+    --blue: #0b3d91;
+    --green: #157a22;
+    --purple: #7b1fe8;
+    --red: #d71920;
+    --ink: #202020;
+    --soft: #f7f3e8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    border: 1px solid #999;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .title {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    padding: 14px 12px;
+  }
+
+  .subtitle {
+    background: var(--soft);
+    text-align: center;
+    font-size: 20px;
+    padding: 12px;
+    border-bottom: 1px solid #bbb;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: minmax(500px, 1fr) 360px;
+    gap: 24px;
+    padding: 24px;
+    align-items: start;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #222;
+    stroke-width: 2.3;
+  }
+
+  .line {
+    stroke: #222;
+    stroke-width: 2.3;
+    stroke-linecap: round;
+  }
+
+  .angle-arc-green {
+    fill: rgba(40, 160, 50, 0.28);
+    stroke: var(--green);
+    stroke-width: 2.2;
+  }
+
+  .angle-arc-purple {
+    fill: rgba(130, 40, 220, 0.28);
+    stroke: var(--purple);
+    stroke-width: 2.2;
+  }
+
+  .point {
+    stroke: #111;
+    stroke-width: 1.5;
+    cursor: grab;
+  }
+
+  .point:active {
+    cursor: grabbing;
+  }
+
+  .centerPoint {
+    stroke: #111;
+    stroke-width: 1.5;
+    cursor: default;
+  }
+
+  .label {
+    font-size: 24px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .angleText {
+    font-size: 24px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .panel {
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    background: linear-gradient(#f7fbff, #eef6ff);
+    padding: 18px;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .panel.measure {
+    border-color: var(--green);
+    background: linear-gradient(#fbfffb, #effbef);
+  }
+
+  .panel h2 {
+    margin: 0 0 14px;
+    color: var(--blue);
+    font-size: 24px;
+  }
+
+  .panel.measure h2 {
+    color: var(--green);
+  }
+
+  .panel p {
+    margin: 10px 0;
+    font-size: 18px;
+    line-height: 1.35;
+  }
+
+  .measurements {
+    font-size: 22px;
+    line-height: 1.75;
+  }
+
+  .green {
+    color: var(--green);
+  }
+
+  .purple {
+    color: var(--purple);
+  }
+
+  .equalBox {
+    margin-top: 18px;
+    padding: 14px;
+    border: 1.5px solid #5ca55c;
+    border-radius: 9px;
+    background: #f7fff7;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .small {
+    font-size: 18px;
+    font-weight: 400;
+    margin-top: 12px;
+    color: #111;
+  }
+
+  @media (max-width: 850px) {
+    .content {
+      grid-template-columns: 1fr;
+    }
+
+    .title {
+      font-size: 22px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="title">The Angle at the Center of a Circle is Twice the Angle at the Circumference</div>
+  <div class="subtitle">Drag points A, B, or C around the circle. Point O stays fixed at the center.</div>
+
+  <div class="content">
+    <svg id="svg" viewBox="0 0 650 650" aria-label="Interactive circle theorem diagram">
+      <circle class="circle" cx="325" cy="325" r="255"></circle>
+
+      <!-- Lines for the circumference angle ACB -->
+      <line id="AC" class="line"></line>
+      <line id="BC" class="line"></line>
+
+      <!-- Radii for the central angle AOB -->
+      <line id="OA" class="line"></line>
+      <line id="OB" class="line"></line>
+
+      <!-- Angle sectors -->
+      <path id="arcC" class="angle-arc-green"></path>
+      <path id="arcO" class="angle-arc-purple"></path>
+
+      <!-- Points -->
+      <circle id="pointA" class="point" r="8" fill="#1f4fff"></circle>
+      <circle id="pointB" class="point" r="8" fill="#e51b23"></circle>
+      <circle id="pointC" class="point" r="8" fill="#19a629"></circle>
+      <circle id="pointO" class="centerPoint" r="8" fill="#111111" cx="325" cy="325"></circle>
+
+      <!-- Labels -->
+      <text id="labelA" class="label" fill="#1f4fff">A</text>
+      <text id="labelB" class="label" fill="#e51b23">B</text>
+      <text id="labelC" class="label" fill="#157a22">C</text>
+      <text id="labelO" class="label" fill="#111111" x="325" y="357">O</text>
+
+      <!-- Angle labels: numbers only -->
+      <text id="textC" class="angleText" fill="#157a22"></text>
+      <text id="textO" class="angleText" fill="#7b1fe8"></text>
+    </svg>
+
+    <div>
+      <div class="panel">
+        <h2>Theorem</h2>
+        <p>The angle at the center of a circle is twice the angle at the circumference.</p>
+        <p>Here, <strong>∠ACB</strong> and <strong>∠AOB</strong> stand on the same arc from A to B.</p>
+      </div>
+
+      <div class="panel measure">
+        <h2>Measurements</h2>
+        <div class="measurements">
+          <div class="green">∠ACB = <span id="angleC">--</span>°</div>
+          <div class="purple">∠AOB = <span id="angleO">--</span>°</div>
+        </div>
+
+        <div class="equalBox">
+          <span class="green" id="calcCirc">--</span> × 2 = <span class="purple" id="calcCenter">--</span>
+          <div class="small">
+            <span class="purple">∠AOB</span> = 2 × <span class="green">∠ACB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const svg = document.getElementById("svg");
+
+  const cx = 325;
+  const cy = 325;
+  const r = 255;
+
+  const points = {
+    A: { angle: 215 },
+    B: { angle: 325 },
+    C: { angle: 92 }
+  };
+
+  const pointEls = {
+    A: document.getElementById("pointA"),
+    B: document.getElementById("pointB"),
+    C: document.getElementById("pointC")
+  };
+
+  const labelEls = {
+    A: document.getElementById("labelA"),
+    B: document.getElementById("labelB"),
+    C: document.getElementById("labelC")
+  };
+
+  const lines = {
+    AC: document.getElementById("AC"),
+    BC: document.getElementById("BC"),
+    OA: document.getElementById("OA"),
+    OB: document.getElementById("OB")
+  };
+
+  const arcC = document.getElementById("arcC");
+  const arcO = document.getElementById("arcO");
+  const textC = document.getElementById("textC");
+  const textO = document.getElementById("textO");
+
+  const angleCReadout = document.getElementById("angleC");
+  const angleOReadout = document.getElementById("angleO");
+  const calcCirc = document.getElementById("calcCirc");
+  const calcCenter = document.getElementById("calcCenter");
+
+  let dragging = null;
+
+  function degToRad(deg) {
+    return deg * Math.PI / 180;
+  }
+
+  function radToDeg(rad) {
+    return rad * 180 / Math.PI;
+  }
+
+  function normalizeRad(a) {
+    while (a < 0) a += 2 * Math.PI;
+    while (a >= 2 * Math.PI) a -= 2 * Math.PI;
+    return a;
+  }
+
+  function pointFromAngle(deg) {
+    const theta = degToRad(deg);
+    return {
+      x: cx + r * Math.cos(theta),
+      y: cy - r * Math.sin(theta)
+    };
+  }
+
+  function getPoint(name) {
+    return pointFromAngle(points[name].angle);
+  }
+
+  function setLine(line, p1, p2) {
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
+  }
+
+  function screenAngleFromPoint(p, vertex) {
+    return normalizeRad(Math.atan2(p.y - vertex.y, p.x - vertex.x));
+  }
+
+  function isOnClockwiseArc(start, end, test) {
+    const arcLen = normalizeRad(end - start);
+    const testLen = normalizeRad(test - start);
+    return testLen > 1e-8 && testLen < arcLen - 1e-8;
+  }
+
+  // Returns the arc from A to B around O that does NOT contain C.
+  // This is the central angle that faces away from the circumference angle at C.
+  function centralArcOppositeC(A, B, C) {
+    const O = { x: cx, y: cy };
+    const a = screenAngleFromPoint(A, O);
+    const b = screenAngleFromPoint(B, O);
+    const c = screenAngleFromPoint(C, O);
+
+    const cOnClockwiseAB = isOnClockwiseArc(a, b, c);
+
+    if (cOnClockwiseAB) {
+      // Use the other arc: B -> A clockwise.
+      return { start: b, end: a, sweep: 1, delta: normalizeRad(a - b) };
+    } else {
+      // Use A -> B clockwise.
+      return { start: a, end: b, sweep: 1, delta: normalizeRad(b - a) };
+    }
+  }
+
+  function polarPoint(vertex, angle, radius) {
+    return {
+      x: vertex.x + radius * Math.cos(angle),
+      y: vertex.y + radius * Math.sin(angle)
+    };
+  }
+
+  function sectorPathFromArc(vertex, arc, radius) {
+    const startPt = polarPoint(vertex, arc.start, radius);
+    const endPt = polarPoint(vertex, arc.end, radius);
+    const largeArc = arc.delta > Math.PI ? 1 : 0;
+
+    return [
+      `M ${vertex.x} ${vertex.y}`,
+      `L ${startPt.x} ${startPt.y}`,
+      `A ${radius} ${radius} 0 ${largeArc} ${arc.sweep} ${endPt.x} ${endPt.y}`,
+      "Z"
+    ].join(" ");
+  }
+
+  function labelPositionFromArc(vertex, arc, dist) {
+    const mid = normalizeRad(arc.start + arc.delta / 2);
+    return polarPoint(vertex, mid, dist);
+  }
+
+  function angleBetweenAt(vertex, p1, p2) {
+    const v1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+    const v2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    const mag1 = Math.hypot(v1.x, v1.y);
+    const mag2 = Math.hypot(v2.x, v2.y);
+
+    const cosTheta = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+    return Math.acos(cosTheta) * 180 / Math.PI;
+  }
+
+  function smallAngleSectorPath(vertex, p1, p2, radius) {
+    const a1 = screenAngleFromPoint(p1, vertex);
+    const a2 = screenAngleFromPoint(p2, vertex);
+
+    let start = a1;
+    let end = a2;
+    let delta = normalizeRad(end - start);
+
+    if (delta > Math.PI) {
+      start = a2;
+      end = a1;
+      delta = normalizeRad(end - start);
+    }
+
+    return sectorPathFromArc(vertex, { start, end, sweep: 1, delta }, radius);
+  }
+
+  function smallAngleLabelPosition(vertex, p1, p2, dist) {
+    const a1 = screenAngleFromPoint(p1, vertex);
+    const a2 = screenAngleFromPoint(p2, vertex);
+
+    let start = a1;
+    let end = a2;
+    let delta = normalizeRad(end - start);
+
+    if (delta > Math.PI) {
+      start = a2;
+      end = a1;
+      delta = normalizeRad(end - start);
+    }
+
+    return labelPositionFromArc(vertex, { start, end, sweep: 1, delta }, dist);
+  }
+
+  function svgPointFromEvent(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function updateDraggedPoint(evt) {
+    if (!dragging) return;
+
+    const pt = svgPointFromEvent(evt);
+    const dx = pt.x - cx;
+    const dy = cy - pt.y;
+
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    if (angle < 0) angle += 360;
+
+    points[dragging].angle = angle;
+    draw();
+  }
+
+  function draw() {
+    const A = getPoint("A");
+    const B = getPoint("B");
+    const C = getPoint("C");
+    const O = { x: cx, y: cy };
+
+    setLine(lines.AC, A, C);
+    setLine(lines.BC, B, C);
+    setLine(lines.OA, O, A);
+    setLine(lines.OB, O, B);
+
+    for (const name of ["A", "B", "C"]) {
+      const p = getPoint(name);
+      pointEls[name].setAttribute("cx", p.x);
+      pointEls[name].setAttribute("cy", p.y);
+
+      const labelOffset = 28;
+      const theta = degToRad(points[name].angle);
+      labelEls[name].setAttribute("x", p.x + labelOffset * Math.cos(theta));
+      labelEls[name].setAttribute("y", p.y - labelOffset * Math.sin(theta));
+    }
+
+    const angleC = angleBetweenAt(C, A, B);
+    const centralArc = centralArcOppositeC(A, B, C);
+    const angleO = radToDeg(centralArc.delta);
+
+    arcC.setAttribute("d", smallAngleSectorPath(C, A, B, 64));
+    arcO.setAttribute("d", sectorPathFromArc(O, centralArc, 70));
+
+    const labelC = smallAngleLabelPosition(C, A, B, 100);
+    const labelO = labelPositionFromArc(O, centralArc, angleO > 180 ? 115 : 105);
+
+    textC.setAttribute("x", labelC.x);
+    textC.setAttribute("y", labelC.y);
+    textC.textContent = `${angleC.toFixed(1)}°`;
+
+    textO.setAttribute("x", labelO.x);
+    textO.setAttribute("y", labelO.y);
+    textO.textContent = `${angleO.toFixed(1)}°`;
+
+    angleCReadout.textContent = angleC.toFixed(1);
+    angleOReadout.textContent = angleO.toFixed(1);
+
+    calcCirc.textContent = angleC.toFixed(1) + "°";
+    calcCenter.textContent = angleO.toFixed(1) + "°";
+  }
+
+  for (const name of ["A", "B", "C"]) {
+    pointEls[name].addEventListener("pointerdown", (evt) => {
+      dragging = name;
+      pointEls[name].setPointerCapture(evt.pointerId);
+    });
+
+    pointEls[name].addEventListener("pointermove", updateDraggedPoint);
+
+    pointEls[name].addEventListener("pointerup", () => {
+      dragging = null;
+    });
+
+    pointEls[name].addEventListener("pointercancel", () => {
+      dragging = null;
+    });
+  }
+
+  draw();
+})();
+</script>
+</body>
+</html>

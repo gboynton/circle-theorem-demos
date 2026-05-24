@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Circle Theorem Demo: Angle in a Semicircle</title>
+<style>
+  :root {
+    --blue: #0b3d91;
+    --green: #157a22;
+    --purple: #7b1fe8;
+    --red: #d71920;
+    --ink: #202020;
+    --soft: #f7f3e8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    border: 1px solid #999;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .title {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    padding: 14px 12px;
+  }
+
+  .subtitle {
+    background: var(--soft);
+    text-align: center;
+    font-size: 20px;
+    padding: 12px;
+    border-bottom: 1px solid #bbb;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: minmax(500px, 1fr) 360px;
+    gap: 24px;
+    padding: 24px;
+    align-items: start;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #222;
+    stroke-width: 2.4;
+  }
+
+  .line {
+    stroke: #222;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  .angle-arc-purple {
+    fill: rgba(130, 40, 220, 0.30);
+    stroke: var(--purple);
+    stroke-width: 2.4;
+  }
+
+  .point {
+    stroke: #111;
+    stroke-width: 1.5;
+    cursor: grab;
+  }
+
+  .point:active {
+    cursor: grabbing;
+  }
+
+  .centerPoint {
+    stroke: #111;
+    stroke-width: 1.5;
+  }
+
+  .label {
+    font-size: 25px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .angleText {
+    font-size: 26px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .info {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border: 1.5px solid #8bbcff;
+    border-radius: 8px;
+    background: #f4f9ff;
+    font-size: 17px;
+    line-height: 1.35;
+  }
+
+  .panel {
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    background: linear-gradient(#f7fbff, #eef6ff);
+    padding: 18px;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .panel.measure {
+    border-color: var(--green);
+    background: linear-gradient(#fbfffb, #effbef);
+  }
+
+  .panel h2 {
+    margin: 0 0 14px;
+    color: var(--blue);
+    font-size: 25px;
+  }
+
+  .panel.measure h2 {
+    color: var(--green);
+  }
+
+  .panel p {
+    margin: 10px 0;
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
+  .measurements {
+    font-size: 24px;
+    line-height: 1.7;
+  }
+
+  .purple {
+    color: var(--purple);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 5px 13px;
+    border: 1.5px solid #c28cff;
+    border-radius: 8px;
+    background: #faf6ff;
+    color: var(--purple);
+    font-weight: 700;
+  }
+
+  @media (max-width: 850px) {
+    .content {
+      grid-template-columns: 1fr;
+    }
+
+    .title {
+      font-size: 23px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="title">The Angle in a Semicircle is Always 90 Degrees</div>
+  <div class="subtitle">Drag any point to explore.</div>
+
+  <div class="content">
+    <div>
+      <svg id="svg" viewBox="0 0 650 650" aria-label="Interactive semicircle theorem diagram">
+        <circle class="circle" cx="325" cy="325" r="255"></circle>
+
+        <!-- Diameter and triangle sides -->
+        <line id="AC" class="line"></line>
+        <line id="AB" class="line"></line>
+        <line id="BC" class="line"></line>
+
+        <!-- Right angle at B -->
+        <path id="arcB" class="angle-arc-purple"></path>
+
+        <!-- Points -->
+        <circle id="pointA" class="point" r="8" fill="#1f4fff"></circle>
+        <circle id="pointB" class="point" r="8" fill="#e51b23"></circle>
+        <circle id="pointC" class="point" r="8" fill="#157a22"></circle>
+        <circle id="pointO" class="centerPoint" r="6" fill="#111111" cx="325" cy="325"></circle>
+
+        <!-- Labels -->
+        <text id="labelA" class="label" fill="#1f4fff">A</text>
+        <text id="labelB" class="label" fill="#e51b23">B</text>
+        <text id="labelC" class="label" fill="#157a22">C</text>
+
+        <!-- Number-only angle label -->
+        <text id="textB" class="angleText" fill="#7b1fe8">90.0°</text>
+      </svg>
+
+      
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>Theorem</h2>
+        <p>The angle in a semicircle is always 90 degrees.</p>
+      </div>
+
+      <div class="panel measure">
+        <h2>Measurements</h2>
+        <div class="measurements">
+          <span class="purple">●</span>
+          ∠ABC =
+          <span class="badge" id="angleReadout">90.0°</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const svg = document.getElementById("svg");
+
+  const cx = 325;
+  const cy = 325;
+  const r = 255;
+
+  const points = {
+    A: { angle: 180 },
+    B: { angle: 90 },
+    C: { angle: 0 }
+  };
+
+  const pointEls = {
+    A: document.getElementById("pointA"),
+    B: document.getElementById("pointB"),
+    C: document.getElementById("pointC")
+  };
+
+  const labelEls = {
+    A: document.getElementById("labelA"),
+    B: document.getElementById("labelB"),
+    C: document.getElementById("labelC")
+  };
+
+  const lineAC = document.getElementById("AC");
+  const lineAB = document.getElementById("AB");
+  const lineBC = document.getElementById("BC");
+  const arcB = document.getElementById("arcB");
+  const textB = document.getElementById("textB");
+  const angleReadout = document.getElementById("angleReadout");
+
+  let dragging = null;
+
+  function degToRad(deg) {
+    return deg * Math.PI / 180;
+  }
+
+  function normalizeDeg(deg) {
+    while (deg < 0) deg += 360;
+    while (deg >= 360) deg -= 360;
+    return deg;
+  }
+
+  function pointFromAngle(deg) {
+    const theta = degToRad(deg);
+    return {
+      x: cx + r * Math.cos(theta),
+      y: cy - r * Math.sin(theta)
+    };
+  }
+
+  function getPoint(name) {
+    return pointFromAngle(points[name].angle);
+  }
+
+  function setLine(line, p1, p2) {
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
+  }
+
+  function angleBetweenAt(vertex, p1, p2) {
+    const v1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+    const v2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    const mag1 = Math.hypot(v1.x, v1.y);
+    const mag2 = Math.hypot(v2.x, v2.y);
+
+    const cosTheta = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+    return Math.acos(cosTheta) * 180 / Math.PI;
+  }
+
+  function vectorAngle(v) {
+    return Math.atan2(v.y, v.x);
+  }
+
+  function normalizeRad(a) {
+    while (a < 0) a += 2 * Math.PI;
+    while (a >= 2 * Math.PI) a -= 2 * Math.PI;
+    return a;
+  }
+
+  function sectorPath(vertex, p1, p2, radius) {
+    const a1 = normalizeRad(vectorAngle({ x: p1.x - vertex.x, y: p1.y - vertex.y }));
+    const a2 = normalizeRad(vectorAngle({ x: p2.x - vertex.x, y: p2.y - vertex.y }));
+
+    let start = a1;
+    let end = a2;
+    let delta = normalizeRad(end - start);
+
+    if (delta > Math.PI) {
+      start = a2;
+      end = a1;
+      delta = normalizeRad(end - start);
+    }
+
+    const startPt = {
+      x: vertex.x + radius * Math.cos(start),
+      y: vertex.y + radius * Math.sin(start)
+    };
+
+    const endPt = {
+      x: vertex.x + radius * Math.cos(end),
+      y: vertex.y + radius * Math.sin(end)
+    };
+
+    const largeArc = delta > Math.PI ? 1 : 0;
+
+    return [
+      `M ${vertex.x} ${vertex.y}`,
+      `L ${startPt.x} ${startPt.y}`,
+      `A ${radius} ${radius} 0 ${largeArc} 1 ${endPt.x} ${endPt.y}`,
+      "Z"
+    ].join(" ");
+  }
+
+  function angleLabelPosition(vertex, p1, p2, dist) {
+    const a1 = normalizeRad(vectorAngle({ x: p1.x - vertex.x, y: p1.y - vertex.y }));
+    const a2 = normalizeRad(vectorAngle({ x: p2.x - vertex.x, y: p2.y - vertex.y }));
+
+    let start = a1;
+    let end = a2;
+    let delta = normalizeRad(end - start);
+
+    if (delta > Math.PI) {
+      start = a2;
+      end = a1;
+      delta = normalizeRad(end - start);
+    }
+
+    const mid = start + delta / 2;
+    return {
+      x: vertex.x + dist * Math.cos(mid),
+      y: vertex.y + dist * Math.sin(mid)
+    };
+  }
+
+  function svgPointFromEvent(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function updateDraggedPoint(evt) {
+    if (!dragging) return;
+
+    const pt = svgPointFromEvent(evt);
+    const dx = pt.x - cx;
+    const dy = cy - pt.y;
+
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    angle = normalizeDeg(angle);
+
+    if (dragging === "A") {
+      points.A.angle = angle;
+      points.C.angle = normalizeDeg(angle + 180);
+    } else if (dragging === "C") {
+      points.C.angle = angle;
+      points.A.angle = normalizeDeg(angle + 180);
+    } else if (dragging === "B") {
+      points.B.angle = angle;
+    }
+
+    draw();
+  }
+
+  function draw() {
+    const A = getPoint("A");
+    const B = getPoint("B");
+    const C = getPoint("C");
+
+    setLine(lineAC, A, C);
+    setLine(lineAB, A, B);
+    setLine(lineBC, B, C);
+
+    for (const name of ["A", "B", "C"]) {
+      const p = getPoint(name);
+      pointEls[name].setAttribute("cx", p.x);
+      pointEls[name].setAttribute("cy", p.y);
+
+      const labelOffset = 30;
+      const theta = degToRad(points[name].angle);
+      labelEls[name].setAttribute("x", p.x + labelOffset * Math.cos(theta));
+      labelEls[name].setAttribute("y", p.y - labelOffset * Math.sin(theta));
+    }
+
+    const angleB = angleBetweenAt(B, A, C);
+    arcB.setAttribute("d", sectorPath(B, A, C, 62));
+
+    const labelPos = angleLabelPosition(B, A, C, 100);
+    textB.setAttribute("x", labelPos.x);
+    textB.setAttribute("y", labelPos.y);
+    textB.textContent = `${angleB.toFixed(1)}°`;
+
+    angleReadout.textContent = `${angleB.toFixed(1)}°`;
+  }
+
+  for (const name of ["A", "B", "C"]) {
+    pointEls[name].addEventListener("pointerdown", (evt) => {
+      dragging = name;
+      pointEls[name].setPointerCapture(evt.pointerId);
+    });
+
+    pointEls[name].addEventListener("pointermove", updateDraggedPoint);
+
+    pointEls[name].addEventListener("pointerup", () => {
+      dragging = null;
+    });
+
+    pointEls[name].addEventListener("pointercancel", () => {
+      dragging = null;
+    });
+  }
+
+  draw();
+})();
+</script>
+</body>
+</html>

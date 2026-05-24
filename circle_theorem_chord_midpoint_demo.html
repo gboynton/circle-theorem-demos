@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Circle Theorem Demo: Centre to Midpoint of Chord</title>
+<style>
+  :root {
+    --blue: #0b3d91;
+    --green: #157a22;
+    --purple: #7b1fe8;
+    --red: #d71920;
+    --ink: #202020;
+    --soft: #f7f3e8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    border: 1px solid #999;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .title {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    text-align: center;
+    font-size: 25px;
+    font-weight: 700;
+    padding: 14px 12px;
+  }
+
+  .subtitle {
+    background: var(--soft);
+    text-align: center;
+    font-size: 20px;
+    padding: 12px;
+    border-bottom: 1px solid #bbb;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: minmax(500px, 1fr) 360px;
+    gap: 24px;
+    padding: 24px;
+    align-items: start;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #222;
+    stroke-width: 2.4;
+  }
+
+  .line {
+    stroke: #222;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .tick {
+    stroke: #111;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+
+  .rightAngle {
+    fill: rgba(130, 40, 220, 0.18);
+    stroke: var(--purple);
+    stroke-width: 2.2;
+  }
+
+  .point {
+    stroke: #111;
+    stroke-width: 1.5;
+  }
+
+  .draggable {
+    cursor: grab;
+  }
+
+  .draggable:active {
+    cursor: grabbing;
+  }
+
+  .label {
+    font-size: 25px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .panel {
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    background: linear-gradient(#f7fbff, #eef6ff);
+    padding: 18px;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .panel.measure {
+    border-color: var(--green);
+    background: linear-gradient(#fbfffb, #effbef);
+  }
+
+  .panel h2 {
+    margin: 0 0 14px;
+    color: var(--blue);
+    font-size: 25px;
+  }
+
+  .panel.measure h2 {
+    color: var(--green);
+  }
+
+  .panel p {
+    margin: 10px 0;
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
+  .measurements {
+    font-size: 24px;
+    line-height: 1.7;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 5px 13px;
+    border: 1.5px solid #c28cff;
+    border-radius: 8px;
+    background: #faf6ff;
+    color: var(--purple);
+    font-weight: 700;
+  }
+
+  .purple {
+    color: var(--purple);
+  }
+
+  .overline {
+    text-decoration: overline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  .propertyLine {
+    margin-top: 14px;
+    font-size: 24px;
+  }
+
+  @media (max-width: 850px) {
+    .content {
+      grid-template-columns: 1fr;
+    }
+
+    .title {
+      font-size: 22px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="title">A Line from the Centre to the Midpoint of a Chord is Perpendicular to the Chord</div>
+  <div class="subtitle">Drag points A or C to explore.</div>
+
+  <div class="content">
+    <svg id="svg" viewBox="0 0 650 650" aria-label="Interactive chord midpoint theorem diagram">
+      <circle class="circle" cx="325" cy="325" r="255"></circle>
+
+      <!-- Chord AC and perpendicular OB -->
+      <line id="AC" class="line"></line>
+      <line id="OB" class="line"></line>
+
+      <!-- Tick marks showing AB = BC -->
+      <line id="tickAB" class="tick"></line>
+      <line id="tickBC" class="tick"></line>
+
+      <!-- Right angle marker at B -->
+      <path id="rightAngle" class="rightAngle"></path>
+
+      <!-- Points -->
+      <circle id="pointA" class="point draggable" r="8" fill="#1f4fff"></circle>
+      <circle id="pointC" class="point draggable" r="8" fill="#157a22"></circle>
+      <circle id="pointO" class="point" r="8" fill="#e51b23" cx="325" cy="325"></circle>
+      <circle id="pointB" class="point" r="7" fill="#111111"></circle>
+
+      <!-- Labels -->
+      <text id="labelA" class="label" fill="#1f4fff">A</text>
+      <text id="labelC" class="label" fill="#157a22">C</text>
+      <text id="labelO" class="label" fill="#e51b23">O</text>
+      <text id="labelB" class="label" fill="#111111">B</text>
+    </svg>
+
+    <div>
+      <div class="panel">
+        <h2>Theorem</h2>
+        <p>A line drawn from the centre of a circle to the midpoint of a chord is perpendicular to the chord.</p>
+      </div>
+
+      <div class="panel measure">
+        <h2>Properties</h2>
+        <div class="measurements">
+          <span class="purple">□</span>
+          ∠OBC =
+          <span class="badge" id="angleReadout">90.0°</span>
+          <div class="propertyLine">
+            <span class="overline">AB</span> = <span class="overline">BC</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const svg = document.getElementById("svg");
+
+  const cx = 325;
+  const cy = 325;
+  const r = 255;
+
+  const points = {
+    A: { angle: 205 },
+    C: { angle: 335 }
+  };
+
+  const pointA = document.getElementById("pointA");
+  const pointC = document.getElementById("pointC");
+  const pointB = document.getElementById("pointB");
+
+  const labelA = document.getElementById("labelA");
+  const labelC = document.getElementById("labelC");
+  const labelO = document.getElementById("labelO");
+  const labelB = document.getElementById("labelB");
+
+  const lineAC = document.getElementById("AC");
+  const lineOB = document.getElementById("OB");
+
+  const tickAB = document.getElementById("tickAB");
+  const tickBC = document.getElementById("tickBC");
+  const rightAngle = document.getElementById("rightAngle");
+  const angleReadout = document.getElementById("angleReadout");
+
+  let dragging = null;
+
+  function degToRad(deg) {
+    return deg * Math.PI / 180;
+  }
+
+  function radToDeg(rad) {
+    return rad * 180 / Math.PI;
+  }
+
+  function normalizeDeg(deg) {
+    while (deg < 0) deg += 360;
+    while (deg >= 360) deg -= 360;
+    return deg;
+  }
+
+  function pointFromAngle(deg) {
+    const theta = degToRad(deg);
+    return {
+      x: cx + r * Math.cos(theta),
+      y: cy - r * Math.sin(theta)
+    };
+  }
+
+  function getPoint(name) {
+    return pointFromAngle(points[name].angle);
+  }
+
+  function midpoint(p1, p2) {
+    return {
+      x: (p1.x + p2.x) / 2,
+      y: (p1.y + p2.y) / 2
+    };
+  }
+
+  function setLine(line, p1, p2) {
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
+  }
+
+  function unitVector(p1, p2) {
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const len = Math.hypot(dx, dy);
+    return { x: dx / len, y: dy / len };
+  }
+
+  function add(p, v, scale) {
+    return { x: p.x + v.x * scale, y: p.y + v.y * scale };
+  }
+
+  function setTick(line, center, along, length) {
+    const perp = { x: -along.y, y: along.x };
+    const p1 = add(center, perp, -length / 2);
+    const p2 = add(center, perp, length / 2);
+    setLine(line, p1, p2);
+  }
+
+  function angleBetweenAt(vertex, p1, p2) {
+    const v1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+    const v2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    const mag1 = Math.hypot(v1.x, v1.y);
+    const mag2 = Math.hypot(v2.x, v2.y);
+
+    const cosTheta = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+    return Math.acos(cosTheta) * 180 / Math.PI;
+  }
+
+  function rightAnglePath(B, O, C, size) {
+    const uBO = unitVector(B, O);
+    const uBC = unitVector(B, C);
+
+    const p1 = add(B, uBO, size);
+    const p2 = add(p1, uBC, size);
+    const p3 = add(B, uBC, size);
+
+    return `M ${B.x} ${B.y} L ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y} Z`;
+  }
+
+  function svgPointFromEvent(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function updateDraggedPoint(evt) {
+    if (!dragging) return;
+
+    const pt = svgPointFromEvent(evt);
+    const dx = pt.x - cx;
+    const dy = cy - pt.y;
+
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    angle = normalizeDeg(angle);
+
+    points[dragging].angle = angle;
+    draw();
+  }
+
+  function draw() {
+    const A = getPoint("A");
+    const C = getPoint("C");
+    const O = { x: cx, y: cy };
+    const B = midpoint(A, C);
+
+    setLine(lineAC, A, C);
+    setLine(lineOB, O, B);
+
+    pointA.setAttribute("cx", A.x);
+    pointA.setAttribute("cy", A.y);
+    pointC.setAttribute("cx", C.x);
+    pointC.setAttribute("cy", C.y);
+    pointB.setAttribute("cx", B.x);
+    pointB.setAttribute("cy", B.y);
+
+    const labelOffset = 30;
+    for (const [name, point, label] of [
+      ["A", A, labelA],
+      ["C", C, labelC]
+    ]) {
+      const theta = degToRad(points[name].angle);
+      label.setAttribute("x", point.x + labelOffset * Math.cos(theta));
+      label.setAttribute("y", point.y - labelOffset * Math.sin(theta));
+    }
+
+    labelO.setAttribute("x", O.x);
+    labelO.setAttribute("y", O.y - 32);
+
+    const chordUnit = unitVector(A, C);
+    const ABMid = midpoint(A, B);
+    const BCMid = midpoint(B, C);
+
+    setTick(tickAB, ABMid, chordUnit, 26);
+    setTick(tickBC, BCMid, chordUnit, 26);
+
+    rightAngle.setAttribute("d", rightAnglePath(B, O, C, 38));
+
+    labelB.setAttribute("x", B.x);
+    labelB.setAttribute("y", B.y + 32);
+
+    const angle = angleBetweenAt(B, O, C);
+    angleReadout.textContent = `${angle.toFixed(1)}°`;
+  }
+
+  for (const [name, el] of [["A", pointA], ["C", pointC]]) {
+    el.addEventListener("pointerdown", (evt) => {
+      dragging = name;
+      el.setPointerCapture(evt.pointerId);
+    });
+
+    el.addEventListener("pointermove", updateDraggedPoint);
+
+    el.addEventListener("pointerup", () => {
+      dragging = null;
+    });
+
+    el.addEventListener("pointercancel", () => {
+      dragging = null;
+    });
+  }
+
+  draw();
+})();
+</script>
+</body>
+</html>

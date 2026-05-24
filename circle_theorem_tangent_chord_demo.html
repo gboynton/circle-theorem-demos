@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Circle Theorem Demo: Tangent-Chord Theorem</title>
+<style>
+  :root {
+    --blue: #0b3d91;
+    --green: #157a22;
+    --purple: #7b1fe8;
+    --ink: #202020;
+    --soft: #f7f3e8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    border: 1px solid #999;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .title {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    text-align: center;
+    font-size: 25px;
+    font-weight: 700;
+    padding: 14px 12px;
+    line-height: 1.15;
+  }
+
+  .subtitle {
+    background: var(--soft);
+    text-align: center;
+    font-size: 20px;
+    padding: 12px;
+    border-bottom: 1px solid #bbb;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: minmax(560px, 1fr) 370px;
+    gap: 24px;
+    padding: 24px;
+    align-items: start;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #222;
+    stroke-width: 2.5;
+  }
+
+  .line, .tangent {
+    stroke: #111;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+  }
+
+  .angleBlue {
+    fill: rgba(31, 79, 255, 0.30);
+    stroke: #1f4fff;
+    stroke-width: 2.2;
+  }
+
+  .angleGreen {
+    fill: rgba(21, 122, 34, 0.30);
+    stroke: #157a22;
+    stroke-width: 2.2;
+  }
+
+  .point {
+    stroke: #111;
+    stroke-width: 1.5;
+  }
+
+  .draggable {
+    cursor: grab;
+  }
+
+  .draggable:active {
+    cursor: grabbing;
+  }
+
+  .label {
+    font-size: 26px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .angleText {
+    font-size: 21px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .panel {
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    background: linear-gradient(#f7fbff, #eef6ff);
+    padding: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .panel.greenPanel {
+    border-color: var(--green);
+    background: linear-gradient(#fbfffb, #effbef);
+  }
+
+  .panel h2 {
+    margin: 0 0 14px;
+    color: var(--blue);
+    font-size: 25px;
+  }
+
+  .panel p {
+    margin: 10px 0;
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
+  .blue { color: #1f4fff; font-weight: 700; }
+  .green { color: #157a22; font-weight: 700; }
+  .overline { text-decoration: overline; text-decoration-thickness: 2px; }
+
+  @media (max-width: 850px) {
+    .content { grid-template-columns: 1fr; }
+    .title { font-size: 22px; }
+    .subtitle { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="title">The Angle between the Tangent and the Side of the Triangle<br>is Equal to the Interior Opposite Angle</div>
+  <div class="subtitle">Drag points A, B, or C to explore.</div>
+
+  <div class="content">
+    <svg id="svg" viewBox="0 0 700 650" aria-label="Interactive tangent chord theorem diagram">
+      <circle class="circle" cx="325" cy="325" r="245"></circle>
+      <circle id="centerDot" class="point" r="5" fill="#111" cx="325" cy="325"></circle>
+
+      <!-- Triangle -->
+      <line id="AB" class="line"></line>
+      <line id="BC" class="line"></line>
+      <line id="CA" class="line"></line>
+
+      <!-- Tangent at B -->
+      <line id="tangent" class="tangent"></line>
+
+      <!-- Angle sectors -->
+      <path id="angleTBA" class="angleBlue"></path>
+      <path id="angleACB" class="angleBlue"></path>
+      <path id="angleTBC" class="angleGreen"></path>
+      <path id="angleBAC" class="angleGreen"></path>
+
+      <!-- Points -->
+      <circle id="pointA" class="point draggable" r="8" fill="#1f4fff"></circle>
+      <circle id="pointB" class="point draggable" r="8" fill="#157a22"></circle>
+      <circle id="pointC" class="point draggable" r="8" fill="#7b1fe8"></circle>
+
+      <!-- Labels -->
+      <text id="labelA" class="label" fill="#1f4fff">A</text>
+      <text id="labelB" class="label" fill="#157a22">B</text>
+      <text id="labelC" class="label" fill="#7b1fe8">C</text>
+
+      <!-- Number-only angle labels -->
+      <text id="textTBA" class="angleText" fill="#1f4fff"></text>
+      <text id="textACB" class="angleText" fill="#1f4fff"></text>
+      <text id="textTBC" class="angleText" fill="#157a22"></text>
+      <text id="textBAC" class="angleText" fill="#157a22"></text>
+    </svg>
+
+    <div>
+      <div class="panel">
+        <h2>Theorem</h2>
+        <p>The angle between the tangent and the side of the triangle is <strong style="color:#7b1fe8;">equal</strong> to the interior opposite angle.</p>
+      </div>
+
+      <div class="panel">
+        <p><span class="blue">Blue:</span> angle between tangent and <span class="overline">BA</span><br>
+        = interior opposite angle <span class="blue">ACB</span></p>
+        <p><span id="blueReadout" class="blue">--° = --°</span></p>
+      </div>
+
+      <div class="panel greenPanel">
+        <p><span class="green">Green:</span> angle between tangent and <span class="overline">BC</span><br>
+        = interior opposite angle <span class="green">BAC</span></p>
+        <p><span id="greenReadout" class="green">--° = --°</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const svg = document.getElementById("svg");
+  const cx = 325, cy = 325, r = 245;
+  const minGap = 10;
+
+  // Screen angle degrees: 0 right, 90 down, 180 left, 270 up.
+  const points = {
+    A: { angle: 150 },
+    B: { angle: 270 },
+    C: { angle: 35 }
+  };
+
+  const pointEls = {
+    A: document.getElementById("pointA"),
+    B: document.getElementById("pointB"),
+    C: document.getElementById("pointC")
+  };
+
+  const labelEls = {
+    A: document.getElementById("labelA"),
+    B: document.getElementById("labelB"),
+    C: document.getElementById("labelC")
+  };
+
+  const lines = {
+    AB: document.getElementById("AB"),
+    BC: document.getElementById("BC"),
+    CA: document.getElementById("CA"),
+    tangent: document.getElementById("tangent")
+  };
+
+  const arcs = {
+    TBA: document.getElementById("angleTBA"),
+    ACB: document.getElementById("angleACB"),
+    TBC: document.getElementById("angleTBC"),
+    BAC: document.getElementById("angleBAC")
+  };
+
+  const texts = {
+    TBA: document.getElementById("textTBA"),
+    ACB: document.getElementById("textACB"),
+    TBC: document.getElementById("textTBC"),
+    BAC: document.getElementById("textBAC")
+  };
+
+  const blueReadout = document.getElementById("blueReadout");
+  const greenReadout = document.getElementById("greenReadout");
+
+  let dragging = null;
+
+  function degToRad(d) { return d * Math.PI / 180; }
+  function radToDeg(r) { return r * 180 / Math.PI; }
+
+  function normalizeDeg(d) {
+    while (d < 0) d += 360;
+    while (d >= 360) d -= 360;
+    return d;
+  }
+
+  function normalizeRad(a) {
+    while (a < 0) a += 2 * Math.PI;
+    while (a >= 2 * Math.PI) a -= 2 * Math.PI;
+    return a;
+  }
+
+  function cwDelta(from, to) {
+    return normalizeDeg(to - from);
+  }
+
+  function betweenClockwise(start, end, test) {
+    const span = cwDelta(start, end);
+    const pos = cwDelta(start, test);
+    return pos > minGap && pos < span - minGap;
+  }
+
+  function clampToIntervalClockwise(start, end, test) {
+    if (betweenClockwise(start, end, test)) return normalizeDeg(test);
+
+    const startBoundary = normalizeDeg(start + minGap);
+    const endBoundary = normalizeDeg(end - minGap);
+
+    const distStart = Math.min(cwDelta(test, startBoundary), cwDelta(startBoundary, test));
+    const distEnd = Math.min(cwDelta(test, endBoundary), cwDelta(endBoundary, test));
+
+    return distStart < distEnd ? startBoundary : endBoundary;
+  }
+
+  function constrainedAngle(name, proposed) {
+    if (name === "A") return clampToIntervalClockwise(points.C.angle, points.B.angle, proposed);
+    if (name === "B") return clampToIntervalClockwise(points.A.angle, points.C.angle, proposed);
+    if (name === "C") return clampToIntervalClockwise(points.B.angle, points.A.angle, proposed);
+    return proposed;
+  }
+
+  function pointFromAngle(deg) {
+    const t = degToRad(deg);
+    return { x: cx + r * Math.cos(t), y: cy + r * Math.sin(t) };
+  }
+
+  function getPoint(name) {
+    return pointFromAngle(points[name].angle);
+  }
+
+  function setLine(line, p1, p2) {
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
+  }
+
+  function unit(v) {
+    const L = Math.hypot(v.x, v.y);
+    return { x: v.x / L, y: v.y / L };
+  }
+
+  function add(p, v, s) {
+    return { x: p.x + v.x * s, y: p.y + v.y * s };
+  }
+
+  function sub(p, q) {
+    return { x: p.x - q.x, y: p.y - q.y };
+  }
+
+  function angleBetweenAt(vertex, p1, p2) {
+    const v1 = sub(p1, vertex);
+    const v2 = sub(p2, vertex);
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    const mag1 = Math.hypot(v1.x, v1.y);
+    const mag2 = Math.hypot(v2.x, v2.y);
+    const cosTheta = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+    return Math.acos(cosTheta) * 180 / Math.PI;
+  }
+
+  function vectorAngle(vertex, p) {
+    return normalizeRad(Math.atan2(p.y - vertex.y, p.x - vertex.x));
+  }
+
+  function sectorPath(vertex, p1, p2, radius) {
+    let a1 = vectorAngle(vertex, p1);
+    let a2 = vectorAngle(vertex, p2);
+    let delta = normalizeRad(a2 - a1);
+
+    if (delta > Math.PI) {
+      const temp = a1;
+      a1 = a2;
+      a2 = temp;
+      delta = normalizeRad(a2 - a1);
+    }
+
+    const startPt = {
+      x: vertex.x + radius * Math.cos(a1),
+      y: vertex.y + radius * Math.sin(a1)
+    };
+    const endPt = {
+      x: vertex.x + radius * Math.cos(a2),
+      y: vertex.y + radius * Math.sin(a2)
+    };
+
+    return `M ${vertex.x} ${vertex.y} L ${startPt.x} ${startPt.y} A ${radius} ${radius} 0 0 1 ${endPt.x} ${endPt.y} Z`;
+  }
+
+  function labelPosition(vertex, p1, p2, dist) {
+    let a1 = vectorAngle(vertex, p1);
+    let a2 = vectorAngle(vertex, p2);
+    let delta = normalizeRad(a2 - a1);
+
+    if (delta > Math.PI) {
+      const temp = a1;
+      a1 = a2;
+      a2 = temp;
+      delta = normalizeRad(a2 - a1);
+    }
+
+    const mid = a1 + delta / 2;
+    return {
+      x: vertex.x + dist * Math.cos(mid),
+      y: vertex.y + dist * Math.sin(mid)
+    };
+  }
+
+  function svgPointFromEvent(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function updateDraggedPoint(evt) {
+    if (!dragging) return;
+    const pt = svgPointFromEvent(evt);
+    const dx = pt.x - cx;
+    const dy = pt.y - cy;
+    let angle = normalizeDeg(radToDeg(Math.atan2(dy, dx)));
+    angle = constrainedAngle(dragging, angle);
+    points[dragging].angle = angle;
+    draw();
+  }
+
+  function draw() {
+    const A = getPoint("A");
+    const B = getPoint("B");
+    const C = getPoint("C");
+    const O = { x: cx, y: cy };
+
+    setLine(lines.AB, A, B);
+    setLine(lines.BC, B, C);
+    setLine(lines.CA, C, A);
+
+    const radialB = unit(sub(B, O));
+    const tangentDir = { x: -radialB.y, y: radialB.x };
+    const Tleft = add(B, tangentDir, -310);
+    const Tright = add(B, tangentDir, 310);
+    setLine(lines.tangent, Tleft, Tright);
+
+    for (const name of ["A", "B", "C"]) {
+      const p = getPoint(name);
+      pointEls[name].setAttribute("cx", p.x);
+      pointEls[name].setAttribute("cy", p.y);
+
+      const labelOffset = 30;
+      const theta = degToRad(points[name].angle);
+      labelEls[name].setAttribute("x", p.x + labelOffset * Math.cos(theta));
+      labelEls[name].setAttribute("y", p.y + labelOffset * Math.sin(theta));
+    }
+
+    // Choose tangent endpoints so the colored tangent-chord angles are outside the triangle.
+    const TforBA = Tleft;
+    const TforBC = Tright;
+
+    const angleTBA = angleBetweenAt(B, TforBA, A);
+    const angleACB = angleBetweenAt(C, A, B);
+    const angleTBC = angleBetweenAt(B, TforBC, C);
+    const angleBAC = angleBetweenAt(A, B, C);
+
+    arcs.TBA.setAttribute("d", sectorPath(B, TforBA, A, 58));
+    arcs.ACB.setAttribute("d", sectorPath(C, A, B, 58));
+    arcs.TBC.setAttribute("d", sectorPath(B, TforBC, C, 58));
+    arcs.BAC.setAttribute("d", sectorPath(A, B, C, 58));
+
+    const positions = {
+      TBA: labelPosition(B, TforBA, A, 90),
+      ACB: labelPosition(C, A, B, 90),
+      TBC: labelPosition(B, TforBC, C, 90),
+      BAC: labelPosition(A, B, C, 90)
+    };
+
+    texts.TBA.setAttribute("x", positions.TBA.x);
+    texts.TBA.setAttribute("y", positions.TBA.y);
+    texts.TBA.textContent = `${angleTBA.toFixed(1)}°`;
+
+    texts.ACB.setAttribute("x", positions.ACB.x);
+    texts.ACB.setAttribute("y", positions.ACB.y);
+    texts.ACB.textContent = `${angleACB.toFixed(1)}°`;
+
+    texts.TBC.setAttribute("x", positions.TBC.x);
+    texts.TBC.setAttribute("y", positions.TBC.y);
+    texts.TBC.textContent = `${angleTBC.toFixed(1)}°`;
+
+    texts.BAC.setAttribute("x", positions.BAC.x);
+    texts.BAC.setAttribute("y", positions.BAC.y);
+    texts.BAC.textContent = `${angleBAC.toFixed(1)}°`;
+
+    blueReadout.textContent = `${angleTBA.toFixed(1)}° = ${angleACB.toFixed(1)}°`;
+    greenReadout.textContent = `${angleTBC.toFixed(1)}° = ${angleBAC.toFixed(1)}°`;
+  }
+
+  for (const name of ["A", "B", "C"]) {
+    pointEls[name].addEventListener("pointerdown", (evt) => {
+      dragging = name;
+      pointEls[name].setPointerCapture(evt.pointerId);
+    });
+
+    pointEls[name].addEventListener("pointermove", updateDraggedPoint);
+
+    pointEls[name].addEventListener("pointerup", () => { dragging = null; });
+    pointEls[name].addEventListener("pointercancel", () => { dragging = null; });
+  }
+
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Tangent Radius Demo</title>
+<style>
+body{font-family:Arial;margin:0;background:white}
+.demo{max-width:1100px;margin:auto;border:1px solid #999;border-radius:10px;overflow:hidden}
+.title{background:#0b3d91;color:white;text-align:center;font-size:28px;font-weight:bold;padding:14px}
+.subtitle{background:#f7f3e8;text-align:center;padding:12px;font-size:20px}
+.content{display:grid;grid-template-columns:1fr 340px;gap:24px;padding:24px}
+svg{width:100%;height:auto}
+.circle{fill:none;stroke:#222;stroke-width:2.5}
+.line,.tangent{stroke:#111;stroke-width:2.6}
+.rightAngle{fill:rgba(130,40,220,.18);stroke:#7b1fe8;stroke-width:2.2}
+.point{stroke:#111;stroke-width:1.5}
+.draggable{cursor:grab}
+.label{font-size:26px;font-weight:bold;text-anchor:middle;dominant-baseline:middle}
+.panel{border:2px solid #0b3d91;border-radius:10px;background:#eef6ff;padding:18px;margin-bottom:20px;text-align:center}
+.measure{border-color:#157a22;background:#effbef}
+.panel h2{margin:0 0 12px;color:#0b3d91}
+.measure h2{color:#157a22}
+.panel p{font-size:19px;line-height:1.35}
+.measurements{font-size:25px}
+.badge{padding:4px 12px;border:1px solid #c28cff;border-radius:8px;background:#faf6ff;color:#7b1fe8;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="demo">
+<div class="title">The Angle Between the Tangent and the Radius is Always 90°</div>
+<div class="subtitle">Drag point A to explore.</div>
+
+<div class="content">
+<svg id="svg" viewBox="0 0 650 650">
+<circle class="circle" cx="325" cy="325" r="255"></circle>
+
+<line id="OA" class="line"></line>
+<line id="tangent" class="tangent"></line>
+
+<path id="rightAngle" class="rightAngle"></path>
+
+<circle id="pointO" class="point" r="8" fill="#e51b23" cx="325" cy="325"></circle>
+<circle id="pointA" class="point draggable" r="9" fill="#1f4fff"></circle>
+<circle id="pointT" class="point" r="7" fill="#111"></circle>
+
+<text id="labelO" class="label" fill="#e51b23">O</text>
+<text id="labelA" class="label" fill="#1f4fff">A</text>
+<text id="labelT" class="label" fill="#111">T</text>
+</svg>
+
+<div>
+<div class="panel">
+<h2>Theorem</h2>
+<p>The angle between the tangent and the radius is always 90 degrees.</p>
+</div>
+
+<div class="panel measure">
+<h2>Measurement</h2>
+<div class="measurements">
+□ ∠OAT = <span class="badge">90°</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+(function(){
+const svg=document.getElementById('svg');
+const cx=325,cy=325,r=255;
+
+const pointA=document.getElementById('pointA');
+const pointT=document.getElementById('pointT');
+
+const labelA=document.getElementById('labelA');
+const labelO=document.getElementById('labelO');
+const labelT=document.getElementById('labelT');
+
+const lineOA=document.getElementById('OA');
+const tangent=document.getElementById('tangent');
+const rightAngle=document.getElementById('rightAngle');
+
+let angleDeg=35;
+let dragging=false;
+
+function degToRad(d){return d*Math.PI/180}
+
+function normalizeDeg(d){
+while(d<0)d+=360;
+while(d>=360)d-=360;
+return d;
+}
+
+function pointFromAngle(d){
+const t=degToRad(d);
+return{
+x:cx+r*Math.cos(t),
+y:cy-r*Math.sin(t)
+};
+}
+
+function setLine(el,p1,p2){
+el.setAttribute('x1',p1.x);
+el.setAttribute('y1',p1.y);
+el.setAttribute('x2',p2.x);
+el.setAttribute('y2',p2.y);
+}
+
+function add(p,v,s){
+return{x:p.x+v.x*s,y:p.y+v.y*s};
+}
+
+function unit(v){
+const len=Math.hypot(v.x,v.y);
+return{x:v.x/len,y:v.y/len};
+}
+
+function rightPath(A,rad,tan,s){
+const p1=add(A,rad,-s);
+const p2=add(p1,tan,s);
+const p3=add(A,tan,s);
+return `M ${A.x} ${A.y} L ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y} Z`;
+}
+
+function svgPt(evt){
+const pt=svg.createSVGPoint();
+pt.x=evt.clientX;
+pt.y=evt.clientY;
+return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+function move(evt){
+if(!dragging)return;
+const pt=svgPt(evt);
+const dx=pt.x-cx;
+const dy=cy-pt.y;
+angleDeg=normalizeDeg(Math.atan2(dy,dx)*180/Math.PI);
+draw();
+}
+
+function draw(){
+const O={x:cx,y:cy};
+const A=pointFromAngle(angleDeg);
+
+setLine(lineOA,O,A);
+
+const radial=unit({x:A.x-O.x,y:A.y-O.y});
+const tan={x:-radial.y,y:radial.x};
+
+const T1=add(A,tan,-230);
+const T2=add(A,tan,230);
+
+setLine(tangent,T1,T2);
+
+const T=add(A,tan,150);
+
+pointT.setAttribute('cx',T.x);
+pointT.setAttribute('cy',T.y);
+
+const normal={x:-tan.y,y:tan.x};
+
+labelT.setAttribute('x',T.x+30*normal.x);
+labelT.setAttribute('y',T.y+30*normal.y);
+
+rightAngle.setAttribute('d',rightPath(A,radial,tan,34));
+
+pointA.setAttribute('cx',A.x);
+pointA.setAttribute('cy',A.y);
+
+labelA.setAttribute('x',A.x+32*radial.x);
+labelA.setAttribute('y',A.y+32*radial.y);
+
+labelO.setAttribute('x',O.x-20);
+labelO.setAttribute('y',O.y-35);
+}
+
+pointA.addEventListener('pointerdown',e=>{
+dragging=true;
+pointA.setPointerCapture(e.pointerId);
+});
+
+pointA.addEventListener('pointermove',move);
+
+pointA.addEventListener('pointerup',()=>dragging=false);
+pointA.addEventListener('pointercancel',()=>dragging=false);
+
+draw();
+})();
+</script>
+</body>
+</html>
