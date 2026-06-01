@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>General Circle Theorem — Ray-Pair Label Version</title>
+<style>
+  :root {
+    --a:#e51b23;
+    --b:#7b1fe8;
+    --c:#157a22;
+    --d:#1f4fff;
+    --navy:#0b3d91;
+    --soft:#f7f3e8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: white;
+    color: #222;
+  }
+
+  .demo {
+    max-width: 1150px;
+    margin: 0 auto;
+    border: 1px solid #999;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .title {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    padding: 14px;
+  }
+
+  .subtitle {
+    background: var(--soft);
+    text-align: center;
+    padding: 11px;
+    font-size: 18px;
+    border-bottom: 1px solid #bbb;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: minmax(650px, 1fr) 310px;
+    gap: 18px;
+    padding: 18px;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #111;
+    stroke-width: 2.4;
+  }
+
+  .chord,
+  .tangent {
+    stroke: #111;
+    stroke-width: 2.0;
+    stroke-linecap: round;
+  }
+
+  .tangent {
+    stroke-width: 1.8;
+  }
+
+  .centerDot {
+    fill: #111;
+  }
+
+  .point {
+    fill: #111;
+    stroke: #111;
+    cursor: grab;
+  }
+
+  .point:active {
+    cursor: grabbing;
+  }
+
+  .pointLabel {
+    font-size: 25px;
+    font-weight: bold;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .angleLabel {
+    font-size: 19px;
+    font-weight: bold;
+    font-style: italic;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    paint-order: stroke;
+    stroke: white;
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+
+  .a { fill: var(--a); color: var(--a); }
+  .b { fill: var(--b); color: var(--b); }
+  .c { fill: var(--c); color: var(--c); }
+  .d { fill: var(--d); color: var(--d); }
+
+  .wedge-a {
+    fill: rgba(229, 27, 35, 0.25);
+    stroke: var(--a);
+    stroke-width: 1.4;
+  }
+
+  .wedge-b {
+    fill: rgba(123, 31, 232, 0.23);
+    stroke: var(--b);
+    stroke-width: 1.4;
+  }
+
+  .wedge-c {
+    fill: rgba(21, 122, 34, 0.25);
+    stroke: var(--c);
+    stroke-width: 1.4;
+  }
+
+  .wedge-d {
+    fill: rgba(31, 79, 255, 0.23);
+    stroke: var(--d);
+    stroke-width: 1.4;
+  }
+
+  .panel {
+    border: 2px solid var(--navy);
+    border-radius: 10px;
+    background: linear-gradient(#f7fbff, #eef6ff);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .panel h2 {
+    margin: 0 0 10px;
+    color: var(--navy);
+    text-align: center;
+    font-size: 22px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 19px;
+  }
+
+  td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .key {
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  @media (max-width: 900px) {
+    .content {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="title">General Circle Theorem — Ray-Pair Label Version</div>
+  <div class="subtitle">Drag A, B, C, or D. Points stay in clockwise order.</div>
+
+  <div class="content">
+    <svg id="svg" viewBox="0 0 760 700">
+      <circle class="circle" cx="380" cy="350" r="250"></circle>
+      <circle class="centerDot" cx="380" cy="350" r="5"></circle>
+
+      <!-- Chords and diagonals -->
+      <line id="AB" class="chord"></line>
+      <line id="BC" class="chord"></line>
+      <line id="CD" class="chord"></line>
+      <line id="DA" class="chord"></line>
+      <line id="AC" class="chord"></line>
+      <line id="BD" class="chord"></line>
+
+      <!-- Tangents -->
+      <line id="tanA" class="tangent"></line>
+      <line id="tanB" class="tangent"></line>
+      <line id="tanC" class="tangent"></line>
+      <line id="tanD" class="tangent"></line>
+
+      <!-- Dynamic angle labels -->
+      <g id="wedgeLayer"></g>
+      <g id="angleLabelLayer"></g>
+
+      <g id="intersectionLayer">
+        <text id="p1" class="angleLabel a">a+c</text>
+        <text id="p2" class="angleLabel b">b+d</text>
+        <text id="p3" class="angleLabel a">a+c</text>
+        <text id="p4" class="angleLabel b">b+d</text>
+      </g>
+
+      <!-- Points -->
+      <circle id="pointA" class="point" r="8"></circle>
+      <circle id="pointB" class="point" r="8"></circle>
+      <circle id="pointC" class="point" r="8"></circle>
+      <circle id="pointD" class="point" r="8"></circle>
+
+      <!-- Point labels -->
+      <text id="labelA" class="pointLabel">A</text>
+      <text id="labelB" class="pointLabel">B</text>
+      <text id="labelC" class="pointLabel">C</text>
+      <text id="labelD" class="pointLabel">D</text>
+    </svg>
+
+    <div>
+      <div class="panel">
+        <h2>Angle values</h2>
+        <table>
+          <tr><td><span class="key a">a</span></td><td id="valA">--</td></tr>
+          <tr><td><span class="key b">b</span></td><td id="valB">--</td></tr>
+          <tr><td><span class="key c">c</span></td><td id="valC">--</td></tr>
+          <tr><td><span class="key d">d</span></td><td id="valD">--</td></tr>
+          <tr><td><span class="key a">a+c</span></td><td id="valAC">--</td></tr>
+          <tr><td><span class="key b">b+d</span></td><td id="valBD">--</td></tr>
+          <tr><td colspan="2" style="padding-top:14px;font-size:22px;font-weight:bold;text-align:center;">
+            a + b + c + d = 180°
+          </td></tr>
+        </table>
+      </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const svg = document.getElementById("svg");
+  const labelLayer = document.getElementById("angleLabelLayer");
+  const wedgeLayer = document.getElementById("wedgeLayer");
+
+  const cx = 380;
+  const cy = 350;
+  const r = 250;
+  const tangentLength = 115;
+  const minGap = 12;
+
+  // Screen-angle convention:
+  // 0 = right, 90 = down, 180 = left, 270 = up.
+  // Clockwise order around the circle is increasing angle.
+  const points = {
+    A: { angle: 285 },
+    B: { angle: 25 },
+    C: { angle: 100 },
+    D: { angle: 175 }
+  };
+
+  const colors = {
+    a: "#e51b23",
+    b: "#7b1fe8",
+    c: "#157a22",
+    d: "#1f4fff"
+  };
+
+  const pointEls = {
+    A: document.getElementById("pointA"),
+    B: document.getElementById("pointB"),
+    C: document.getElementById("pointC"),
+    D: document.getElementById("pointD")
+  };
+
+  const pointLabelEls = {
+    A: document.getElementById("labelA"),
+    B: document.getElementById("labelB"),
+    C: document.getElementById("labelC"),
+    D: document.getElementById("labelD")
+  };
+
+  let dragging = null;
+
+  function degToRad(deg) {
+    return deg * Math.PI / 180;
+  }
+
+  function radToDeg(rad) {
+    return rad * 180 / Math.PI;
+  }
+
+  function normalizeDeg(deg) {
+    while (deg < 0) deg += 360;
+    while (deg >= 360) deg -= 360;
+    return deg;
+  }
+
+  function cwDelta(from, to) {
+    return normalizeDeg(to - from);
+  }
+
+  function pointFromAngle(deg) {
+    const t = degToRad(deg);
+    return {
+      x: cx + r * Math.cos(t),
+      y: cy + r * Math.sin(t)
+    };
+  }
+
+  function P(name) {
+    return pointFromAngle(points[name].angle);
+  }
+
+  function sub(p, q) {
+    return { x: p.x - q.x, y: p.y - q.y };
+  }
+
+  function add(p, v, s) {
+    return { x: p.x + v.x * s, y: p.y + v.y * s };
+  }
+
+  function unit(v) {
+    const len = Math.hypot(v.x, v.y);
+    return { x: v.x / len, y: v.y / len };
+  }
+
+  function setLine(id, p1, p2) {
+    const el = document.getElementById(id);
+    el.setAttribute("x1", p1.x);
+    el.setAttribute("y1", p1.y);
+    el.setAttribute("x2", p2.x);
+    el.setAttribute("y2", p2.y);
+  }
+
+  function angleBetweenAt(vertex, p1, p2) {
+    const v1 = sub(p1, vertex);
+    const v2 = sub(p2, vertex);
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    const m1 = Math.hypot(v1.x, v1.y);
+    const m2 = Math.hypot(v2.x, v2.y);
+    const c = Math.max(-1, Math.min(1, dot / (m1 * m2)));
+    return Math.acos(c) * 180 / Math.PI;
+  }
+
+  function tangentDirections(name) {
+    const p = P(name);
+    const radial = unit(sub(p, { x: cx, y: cy }));
+    const tangent = { x: -radial.y, y: radial.x };
+
+    return {
+      minus: add(p, tangent, -tangentLength),
+      plus: add(p, tangent, tangentLength)
+    };
+  }
+
+  function tangentToward(name, targetPoint) {
+    const p = P(name);
+    const t = tangentDirections(name);
+    const dMinus = Math.hypot(t.minus.x - targetPoint.x, t.minus.y - targetPoint.y);
+    const dPlus = Math.hypot(t.plus.x - targetPoint.x, t.plus.y - targetPoint.y);
+    return dMinus < dPlus ? t.minus : t.plus;
+  }
+
+  function angleOfRay(vertex, p) {
+    return normalizeDeg(radToDeg(Math.atan2(p.y - vertex.y, p.x - vertex.x)));
+  }
+
+  function midpointOfSmallAngle(vertex, p1, p2) {
+    let a1 = angleOfRay(vertex, p1);
+    let a2 = angleOfRay(vertex, p2);
+
+    let delta = cwDelta(a1, a2);
+
+    if (delta > 180) {
+      const temp = a1;
+      a1 = a2;
+      a2 = temp;
+      delta = cwDelta(a1, a2);
+    }
+
+    return normalizeDeg(a1 + delta / 2);
+  }
+
+
+  function sectorPath(vertex, p1, p2, radius) {
+    let a1 = angleOfRay(vertex, p1);
+    let a2 = angleOfRay(vertex, p2);
+
+    let delta = cwDelta(a1, a2);
+
+    if (delta > 180) {
+      const temp = a1;
+      a1 = a2;
+      a2 = temp;
+      delta = cwDelta(a1, a2);
+    }
+
+    const start = {
+      x: vertex.x + radius * Math.cos(degToRad(a1)),
+      y: vertex.y + radius * Math.sin(degToRad(a1))
+    };
+
+    const end = {
+      x: vertex.x + radius * Math.cos(degToRad(a2)),
+      y: vertex.y + radius * Math.sin(degToRad(a2))
+    };
+
+    return [
+      `M ${vertex.x} ${vertex.y}`,
+      `L ${start.x} ${start.y}`,
+      `A ${radius} ${radius} 0 0 1 ${end.x} ${end.y}`,
+      "Z"
+    ].join(" ");
+  }
+
+  function shadeAngle(label, vertex, p1, p2, radius = 42) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("class", "wedge-" + label);
+    path.setAttribute("d", sectorPath(vertex, p1, p2, radius));
+    wedgeLayer.appendChild(path);
+  }
+
+  function placeAngleLabel(label, vertex, p1, p2, distance = 62) {
+    shadeAngle(label, vertex, p1, p2);
+    const angle = midpointOfSmallAngle(vertex, p1, p2);
+    const t = degToRad(angle);
+
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    el.setAttribute("class", "angleLabel " + label);
+    el.setAttribute("fill", colors[label]);
+    el.setAttribute("x", vertex.x + distance * Math.cos(t));
+    el.setAttribute("y", vertex.y + distance * Math.sin(t));
+    el.textContent = label;
+    labelLayer.appendChild(el);
+  }
+
+
+  function lineIntersection(p1, p2, p3, p4) {
+    const x1 = p1.x, y1 = p1.y;
+    const x2 = p2.x, y2 = p2.y;
+    const x3 = p3.x, y3 = p3.y;
+    const x4 = p4.x, y4 = p4.y;
+
+    const denom = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+
+    if (Math.abs(denom) < 1e-10) return null;
+
+    const px =
+      ((x1*y2 - y1*x2)*(x3-x4) - (x1-x2)*(x3*y4 - y3*x4)) / denom;
+
+    const py =
+      ((x1*y2 - y1*x2)*(y3-y4) - (y1-y2)*(x3*y4 - y3*x4)) / denom;
+
+    return { x: px, y: py };
+  }
+
+  function constrainAngle(name, proposed) {
+    const prev = { A: "D", B: "A", C: "B", D: "C" }[name];
+    const next = { A: "B", B: "C", C: "D", D: "A" }[name];
+
+    const prevAngle = points[prev].angle;
+    const nextAngle = points[next].angle;
+
+    const span = cwDelta(prevAngle, nextAngle);
+    const pos = cwDelta(prevAngle, proposed);
+
+    if (pos < minGap) return normalizeDeg(prevAngle + minGap);
+    if (pos > span - minGap) return normalizeDeg(nextAngle - minGap);
+
+    return proposed;
+  }
+
+  function svgPointFromEvent(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function updateDraggedPoint(evt) {
+    if (!dragging) return;
+
+    const pt = svgPointFromEvent(evt);
+    const proposed = normalizeDeg(radToDeg(Math.atan2(pt.y - cy, pt.x - cx)));
+
+    points[dragging].angle = constrainAngle(dragging, proposed);
+    draw();
+  }
+
+  function draw() {
+    labelLayer.innerHTML = "";
+    wedgeLayer.innerHTML = "";
+
+    const A = P("A");
+    const B = P("B");
+    const C = P("C");
+    const D = P("D");
+
+    setLine("AB", A, B);
+    setLine("BC", B, C);
+    setLine("CD", C, D);
+    setLine("DA", D, A);
+    setLine("AC", A, C);
+    setLine("BD", B, D);
+
+    const pointMap = { A, B, C, D };
+
+    for (const name of ["A", "B", "C", "D"]) {
+      const p = pointMap[name];
+
+      pointEls[name].setAttribute("cx", p.x);
+      pointEls[name].setAttribute("cy", p.y);
+
+      const theta = degToRad(points[name].angle);
+      pointLabelEls[name].setAttribute("x", p.x + 31 * Math.cos(theta));
+      pointLabelEls[name].setAttribute("y", p.y + 31 * Math.sin(theta));
+
+      const t = tangentDirections(name);
+      setLine("tan" + name, t.minus, t.plus);
+    }
+
+    // Angle values
+    const aval = angleBetweenAt(C, B, A);
+    const bval = angleBetweenAt(D, C, B);
+    const cval = angleBetweenAt(A, D, C);
+    const dval = angleBetweenAt(B, A, D);
+
+    document.getElementById("valA").textContent = aval.toFixed(1) + "°";
+    document.getElementById("valB").textContent = bval.toFixed(1) + "°";
+    document.getElementById("valC").textContent = cval.toFixed(1) + "°";
+    document.getElementById("valD").textContent = dval.toFixed(1) + "°";
+    document.getElementById("valAC").textContent = (aval + cval).toFixed(1) + "°";
+    document.getElementById("valBD").textContent = (bval + dval).toFixed(1) + "°";
+
+    // ------------------------------------------------------------
+    // Explicit ray-pair angle definitions
+    // ------------------------------------------------------------
+
+    // At A:
+    // a = tangent toward D and AD
+    // b = AD and AC
+    // c = AC and AB
+    // d = AB and tangent toward B
+    placeAngleLabel("a", A, tangentToward("A", D), D);
+    placeAngleLabel("b", A, D, C);
+    placeAngleLabel("c", A, C, B);
+    placeAngleLabel("d", A, B, tangentToward("A", B));
+
+    // At B:
+    // c = tangent toward C and BC
+    // b = BC and BD
+    // a = BD and BA
+    // d = BA and tangent toward A
+    placeAngleLabel("c", B, tangentToward("B", C), C);
+    placeAngleLabel("b", B, C, D);
+    placeAngleLabel("a", B, D, A);
+    placeAngleLabel("d", B, A, tangentToward("B", A));
+
+    // At C:
+    // c = tangent toward B and CB
+    // d = CA and CB
+    // a = CD and CA
+    // b = tangent toward D and CD
+    placeAngleLabel("c", C, tangentToward("C", B), B);
+    placeAngleLabel("d", C, A, B);
+    placeAngleLabel("a", C, D, A);
+    placeAngleLabel("b", C, tangentToward("C", D), D);
+
+
+    // Intersection point P of diagonals AC and BD
+    const Pint = lineIntersection(A, C, B, D);
+
+    if (Pint) {
+      const labels = [
+        {id:"p1", dx:-42, dy:-18, txt:"a+c"},
+        {id:"p2", dx: 42, dy:-18, txt:"b+d"},
+        {id:"p3", dx: 42, dy: 24, txt:"a+c"},
+        {id:"p4", dx:-42, dy: 24, txt:"b+d"}
+      ];
+
+      labels.forEach(L => {
+        const el = document.getElementById(L.id);
+        el.setAttribute("x", Pint.x + L.dx);
+        el.setAttribute("y", Pint.y + L.dy);
+        el.textContent = L.txt;
+      });
+    }
+
+    // At D:
+    // b = tangent toward C and DC
+    // c = DC and DB
+    // d = DB and DA
+    // a = DA and tangent toward A
+    placeAngleLabel("b", D, tangentToward("D", C), C);
+    placeAngleLabel("c", D, C, B);
+    placeAngleLabel("d", D, B, A);
+    placeAngleLabel("a", D, A, tangentToward("D", A));
+  }
+
+  for (const name of ["A", "B", "C", "D"]) {
+    pointEls[name].addEventListener("pointerdown", (evt) => {
+      dragging = name;
+      pointEls[name].setPointerCapture(evt.pointerId);
+    });
+
+    pointEls[name].addEventListener("pointermove", updateDraggedPoint);
+
+    pointEls[name].addEventListener("pointerup", () => {
+      dragging = null;
+    });
+
+    pointEls[name].addEventListener("pointercancel", () => {
+      dragging = null;
+    });
+  }
+
+  draw();
+})();
+</script>
+</body>
+</html>
