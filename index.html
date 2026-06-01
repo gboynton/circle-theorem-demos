@@ -1,156 +1,241 @@
-# index.html
-
-```html
 <!DOCTYPE html>
-    <head>
-    <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Interactive Circle Theorem Demos</title>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Interactive Circle Theorem Demos</title>
 
-        <style>
-        body {
-          margin: 0;
-          font-family: Arial, Helvetica, sans-serif;
-          background: #f4f6fa;
-            color: #222;
-        }
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6fa;
+    color: #222;
+  }
 
-      header {
-        background: linear-gradient(#0d4f9a, #07336e);
-          color: white;
-          padding: 18px;
-          text-align: center;
-          font-size: 30px;
-          font-weight: bold;
-      }
+  header {
+    background: linear-gradient(#0d4f9a, #07336e);
+    color: white;
+    padding: 18px;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+  }
 
-      .container {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        height: calc(100vh - 72px);
-      }
+  .container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    height: calc(100vh - 72px);
+  }
 
-      .sidebar {
-        background: white;
-        border-right: 1px solid #bbb;
-        padding: 18px;
-        overflow-y: auto;
-      }
+  .sidebar {
+    background: white;
+    border-right: 1px solid #bbb;
+    padding: 18px;
+    overflow-y: auto;
+  }
 
-      .sidebar h2 {
-        margin-top: 0;
-        color: #0b3d91;
-          font-size: 22px;
-      }
+  .sidebar h2 {
+    margin-top: 0;
+    color: #0b3d91;
+    font-size: 22px;
+  }
 
-      .demoButton {
-        width: 100%;
-        padding: 14px 16px;
-        margin-bottom: 12px;
-        border: none;
-        border-radius: 8px;
-        background: #eef6ff;
-          color: #0b3d91;
-          font-size: 18px;
-        font-weight: bold;
-        text-align: left;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
+  .demoButton {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #eef6ff;
+    color: #0b3d91;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
 
-      .demoButton:hover {
-        background: #dbeaff;
-      }
+  .demoButton:hover {
+    background: #dbeaff;
+  }
 
-      .viewer {
-        background: #ddd;
-          height: 100%;
-      }
+  .viewer {
+    background: #ddd;
+    height: 100%;
+    overflow: hidden;
+  }
 
-      iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-        background: white;
-      }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+  }
 
-      @media (max-width: 850px) {
-        .container {
-          grid-template-columns: 1fr;
-          grid-template-rows: auto 1fr;
-        }
+  .theoremList {
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    padding: 24px;
+    box-sizing: border-box;
+  }
 
-        .sidebar {
-          border-right: none;
-          border-bottom: 1px solid #bbb;
-        }
-      }
-      </style>
-        </head>
-        <body>
+  .iconMap {
+    position: relative;
+    width: min(98%, 1300px);
+    line-height: 0;
+    background: white;
+  }
 
-        <header>
-        Interactive Circle Theorem Demos
-      </header>
+  .iconMap img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 
-        <div class="container">
+  .hotspot {
+    position: absolute;
+    display: block;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    z-index: 10;
+  }
 
-        <div class="sidebar">
-        <h2>Choose a Demo</h2>
+  .hotspot:hover,
+  .hotspot:focus {
+    outline: 3px solid #0b3d91;
+    outline-offset: -3px;
+    background: rgba(11, 61, 145, 0.08);
+  }
 
-        <button class="demoButton" onclick="showDemo('circle_theorem_same_segment_demo.html')">
-        Angles in the Same Segment
-      </button>
+  @media (max-width: 850px) {
+    .container {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+    }
 
-        <button class="demoButton" onclick="showDemo('circle_theorem_center_angle_demo.html')">
-        Angle at the Center
-      </button>
+    .sidebar {
+      border-right: none;
+      border-bottom: 1px solid #bbb;
+    }
+  }
+</style>
+</head>
 
-        <button class="demoButton" onclick="showDemo('circle_theorem_semicircle_angle_demo.html')">
-        Angle in a Semicircle
-      </button>
+<body>
+<header>
+  Interactive Circle Theorem Demos
+</header>
 
-        <button class="demoButton" onclick="showDemo('circle_theorem_cyclic_quadrilateral_demo.html')">
-        Cyclic Quadrilateral
-      </button>
+<div class="container">
 
-        <button class="demoButton" onclick="showDemo('circle_theorem_chord_midpoint_demo.html')">
-        Midpoint of a Chord
-      </button>
+  <div class="sidebar">
+    <h2>Choose a Demo</h2>
 
-        <button class="demoButton" onclick="showDemo('circle_theorem_tangent_radius_demo.html')">
-        Tangent and Radius
-      </button>
+    <button class="demoButton" onclick="showTheoremList()">
+      List of Theorems
+    </button>
 
-        <button class="demoButton" onclick="showDemo('circle_theorem_equal_tangents_demo.html')">
-        Equal Tangents
-      </button>
+    <button class="demoButton" onclick="showDemo('circle_theorem_center_angle_demo.html')">
+      The angle at the centre is twice the angle at the circumference
+    </button>
 
-        <button class="demoButton" onclick="showDemo('circle_theorem_tangent_chord_demo.html')">
-        Tangent-Chord Theorem
-      </button>
+    <button class="demoButton" onclick="showDemo('circle_theorem_same_segment_demo.html')">
+      Angles in the same segment are equal
+    </button>
 
-        </div>
+    <button class="demoButton" onclick="showDemo('circle_theorem_semicircle_angle_demo.html')">
+      The angle in a semicircle is 90 degrees
+    </button>
 
-        <div class="viewer">
-        <iframe
-      id="demoFrame"
-      src="circle_theorem_same_segment_demo.html">
-        </iframe>
-        </div>
+    <button class="demoButton" onclick="showDemo('circle_theorem_cyclic_quadrilateral_demo.html')">
+      Opposite angles in a cyclic quadrilateral add up to 180 degrees
+    </button>
 
-        </div>
+    <button class="demoButton" onclick="showDemo('circle_theorem_chord_midpoint_demo.html')">
+      The perpendicular from the centre to the chord bisects the chord
+    </button>
 
-        <script>
-        function showDemo(fileName) {
-          document.getElementById('demoFrame').src = fileName;
-        }
-      </script>
+    <button class="demoButton" onclick="showDemo('circle_theorem_tangent_radius_demo.html')">
+      The angle between a tangent and a radius is 90 degrees
+    </button>
 
-        </body>
-        </html>
-        ```
+    <button class="demoButton" onclick="showDemo('circle_theorem_equal_tangents_demo.html')">
+      Tangents from a point outside a circle are equal in length
+    </button>
 
-      Place this file in the same folder as all eight demo HTML files.
+    <button class="demoButton" onclick="showDemo('circle_theorem_tangent_chord_demo.html')">
+      Alternate segment theorem
+    </button>
+  </div>
 
-      Then open `index.html` in a browser, or upload the whole folder to GitHub Pages.
+  <div class="viewer" id="viewer"></div>
+
+</div>
+
+<script>
+function theoremListHTML() {
+  return `
+    <div class="theoremList">
+      <div class="iconMap">
+        <img src="Geometry-Maths-GCSE-circle-theorems-image.png"
+             alt="Summary of circle theorem demos">
+
+        <button class="hotspot" title="Angle at the centre"
+          style="left:0%; top:0%; width:25%; height:50%;"
+          onclick="showDemo('circle_theorem_center_angle_demo.html')"></button>
+
+        <button class="hotspot" title="Angles in the same segment"
+          style="left:25%; top:0%; width:25%; height:50%;"
+          onclick="showDemo('circle_theorem_same_segment_demo.html')"></button>
+
+        <button class="hotspot" title="Angle in a semicircle"
+          style="left:50%; top:0%; width:25%; height:50%;"
+          onclick="showDemo('circle_theorem_semicircle_angle_demo.html')"></button>
+
+        <button class="hotspot" title="Cyclic quadrilateral"
+          style="left:75%; top:0%; width:25%; height:50%;"
+          onclick="showDemo('circle_theorem_cyclic_quadrilateral_demo.html')"></button>
+
+        <button class="hotspot" title="Chord midpoint theorem"
+          style="left:0%; top:50%; width:25%; height:50%;"
+          onclick="showDemo('circle_theorem_chord_midpoint_demo.html')"></button>
+
+        <button class="hotspot" title="Tangent and radius"
+          style="left:25%; top:50%; width:25%; height:50%;"
+          onclick="showDemo('circle_theorem_tangent_radius_demo.html')"></button>
+
+        <button class="hotspot" title="Equal tangents"
+          style="left:50%; top:50%; width:25%; height:50%;"
+          onclick="showDemo('circle_theorem_equal_tangents_demo.html')"></button>
+
+        <button class="hotspot" title="Alternate segment theorem"
+          style="left:75%; top:50%; width:25%; height:50%;"
+          onclick="showDemo('circle_theorem_tangent_chord_demo.html')"></button>
+      </div>
+    </div>
+  `;
+}
+
+function showTheoremList() {
+  document.getElementById('viewer').innerHTML = theoremListHTML();
+}
+
+function showDemo(fileName) {
+  document.getElementById('viewer').innerHTML =
+    `<iframe id="demoFrame" src="${fileName}"></iframe>`;
+}
+
+showTheoremList();
+</script>
+
+</body>
+</html>
